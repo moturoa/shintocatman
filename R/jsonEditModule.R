@@ -120,21 +120,20 @@ jsonEditModule <- function(input, output, session,
     val <- value_txt()
     n <- n_cat()
     req(n>0)
-    if("value" %in% edit()){
-      for(i in 1:n){
-        val[[i]] <- input[[paste0("val_",i)]]   
-      }  
-    }
     
-    if("key" %in% edit()){
-      for(i in 1:n){
-        names(val)[i] <- input[[paste0("key_",i)]]   
-      }  
-    }
-    
+    for(i in 1:n){
+      val[[i]] <- input[[paste0("val_",i)]]   
+    }  
+  
+    for(i in 1:n){
+      names(val)[i] <- input[[paste0("key_",i)]]   
+    }  
+
     val <- val[1:n_cat()]  # is dit nodig?
     
-    txt_out(jsonlite::toJSON(val, auto_unbox = TRUE))
+    valjson <- jsonlite::toJSON(as.list(val), auto_unbox = TRUE)
+    
+    txt_out(valjson)
     
     removeModal()
     callback()
@@ -164,7 +163,8 @@ test_jsonedit <- function(){
                              options = reactive(c("add","delete")),
                              edit = reactive("value"),
                              widths = c(2,10),
-                             value = reactive("{\"1\":\"\",\"2\":\"Gereed\",\"3\":\"In aanbouw genomen\",\"4\":\"Intake\",\"5\":\"Onherroepelijk plan/besluit\",\"6\":\"Ontwerpplan/besluit\",\"7\":\"Planologische voorbereiding\",\"8\":\"Potentieel\",\"9\":\"Start Project\",\"10\":\"Vastgesteld plan/besluit\",\"11\":\"Vergunning verleend\"}"))
+                             value = reactive("[]"))
+                               #reactive("{\"1\":\"\",\"2\":\"Gereed\",\"3\":\"In aanbouw genomen\",\"4\":\"Intake\",\"5\":\"Onherroepelijk plan/besluit\",\"6\":\"Ontwerpplan/besluit\",\"7\":\"Planologische voorbereiding\",\"8\":\"Potentieel\",\"9\":\"Start Project\",\"10\":\"Vastgesteld plan/besluit\",\"11\":\"Vergunning verleend\"}"))
    
 
     output$txt_out <- renderPrint({

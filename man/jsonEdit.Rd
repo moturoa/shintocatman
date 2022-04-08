@@ -5,21 +5,19 @@
 \alias{jsonEditModule}
 \title{Shiny JSON edit module}
 \usage{
-jsonEditModuleUI(
-  id,
-  class = "",
-  options = c("delete", "add"),
-  options_labels = c(delete = "Laatste verwijderen", add = "Toevoegen", save =
-    "Opslaan")
-)
+jsonEditModuleUI(id, class = "", icon = NULL, label = "Edit values")
 
 jsonEditModule(
   input,
   output,
   session,
-  edit = c("key", "value"),
+  options = reactive(c("delete", "add")),
+  options_labels = c(delete = "Laatste verwijderen", add = "Toevoegen", save =
+    "Opslaan"),
+  edit = reactive(c("key", "value")),
   widths = c(6, 6),
-  value = reactive(NULL)
+  value = reactive(NULL),
+  callback = function(data) { }
 )
 }
 \arguments{

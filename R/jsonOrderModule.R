@@ -17,6 +17,8 @@ jsonOrderModuleUI <- function(id, label = "Change order", icon = NULL, class = "
 
 
 #' @rdname jsonOrder
+#' @export
+#' @importFrom sortable rank_list
 jsonOrderModule <- function(input, output, session,
                             data = reactive(NULL),
                             order_column = reactive(NULL),
@@ -25,7 +27,6 @@ jsonOrderModule <- function(input, output, session,
                             ){
   
   order_data <- reactive({
-    req(order_column())
     from_json(data()[[order_column()]])  
   })
   
@@ -34,7 +35,7 @@ jsonOrderModule <- function(input, output, session,
     if(is.null(label_column())){
       as.character(seq(1, length(order_data())))
     } else {
-      from_json(data()[[label_column()]])
+      from_json(data()[[label_column()]])[order_data()]
     }
   })
     
@@ -43,7 +44,7 @@ jsonOrderModule <- function(input, output, session,
     showModal(
       modalDialog(
         title = "Drag to change the order",
-        rank_list(
+        sortable::rank_list(
           text = "",
           labels = labels(),
           input_id = session$ns("value")
@@ -52,7 +53,7 @@ jsonOrderModule <- function(input, output, session,
                                       "Opslaan",
                                       icon = icon("check"),
                                       class = "btn-success"),
-                         modalButton("Annuleren")
+                         htmltools::tagAppendAttributes(modalButton("Annuleren"), class = "btn-danger")
         )
       )
     )
@@ -100,7 +101,7 @@ test_jsonOrderModule <- function(){
                data = reactive({
                  tibble(
                   labels = to_json(setNames(list("aap","banaan","tak","boom"),as.character(1:4))),
-                  order = to_json(setNames(as.list(1:4),1:4))
+                  order = to_json(c(4,1,2,3))
                 )
                }),
                order_column = reactive("order"),

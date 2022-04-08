@@ -17,6 +17,7 @@ colorVectorPickModuleUI <- function(id, label = "Kleuren kiezen",
 
 #' @rdname colorVector
 #' @export
+#' @importFrom colourpicker colourInput
 colorVectorPickModule <- function(input, output, session,
                                   n_colors = reactive(NULL),
                                   current_colors = reactive(NULL),
@@ -65,7 +66,7 @@ colorVectorPickModule <- function(input, output, session,
                                       "Opslaan",
                                       icon = icon("check"),
                                       class = "btn-success"),
-                         modalButton("Annuleren")
+                         htmltools::tagAppendAttributes(modalButton("Annuleren"), class = "btn-danger")
         ),
 
         lapply(1:n_col, function(i){
@@ -113,7 +114,7 @@ colorVectorPickModule <- function(input, output, session,
   })
 
 
-return(color_choices)
+  return(color_choices)
 }
 
 

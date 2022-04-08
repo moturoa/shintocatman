@@ -5,15 +5,16 @@
 \alias{jsonOrderModule}
 \title{Shiny JSON order edit module}
 \usage{
-jsonOrderModuleUI(id)
+jsonOrderModuleUI(id, label = "Change order", icon = NULL, class = "")
 
 jsonOrderModule(
   input,
   output,
   session,
-  data = NULL,
-  order_column = NULL,
-  label_column = NULL
+  data = reactive(NULL),
+  order_column = reactive(NULL),
+  label_column = reactive(NULL),
+  callback = function(data) { }
 )
 }
 \arguments{

@@ -2,6 +2,11 @@
 
 export(colorVectorPickModule)
 export(colorVectorPickModuleUI)
+export(from_json)
 export(jsonEditModule)
 export(jsonEditModuleUI)
+export(jsonOrderModule)
 export(jsonOrderModuleUI)
+export(to_json)
+importFrom(colourpicker,colourInput)
+importFrom(sortable,rank_list)
