@@ -1,4 +1,5 @@
 #' Shiny JSON edit module
+#' @description Editor for key-value type JSON fields. Edit either or both of the keys and the labels.
 #' @param class CSS class of the editor
 #' @param opties "verwijderen", "toevoegen", or both
 #' @param input

@@ -1,5 +1,11 @@
 
-
+#' Shiny JSON order edit module
+#' @description Editor for ordering a JSON vector e.g. [1,2,3,4]
+#' @param class CSS class of the editor
+#' @param opties "verwijderen", "toevoegen", or both
+#' @param input
+#' @rdname jsonOrder
+#' @export
 jsonOrderModuleUI <- function(id){
   
   ns <- NS(id)
@@ -10,7 +16,7 @@ jsonOrderModuleUI <- function(id){
 
 
 
-
+#' @rdname jsonOrder
 jsonOrderModule <- function(input, output, session,
                             data = NULL,
                             order_column = NULL,
