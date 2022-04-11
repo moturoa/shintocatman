@@ -10,5 +10,6 @@ from_json(x, ...)
 to_json(x, ...)
 }
 \description{
-Json Utilities
+Wrapper around `jsonlite::fromJSON`, returns input argument if it
+cannot be converted from JSON.
 }
