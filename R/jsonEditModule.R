@@ -66,26 +66,46 @@ jsonEditModule <- function(input, output, session,
     
   output$ui_edit <- renderUI({
     
+    # old values (provided as input)
     val <- value_txt()
+    
+    # number of categories
     n <- n_cat()
     req(n>0)
     
     lapply(1:n, function(i){
      
+      key_id <- paste0("key_",i)
+      val_id <- paste0("val_",i)
+      
+      # Read key from input data, or if n_cat > length(provided), set to ""
       key <- ifelse(i > length(val), "", names(val)[i])
+    
+      # values already entered, keep it here
+      if(!is.null(input[[key_id]])){
+        key <- input[[key_id]]
+      }
+      
+      # if still no value found, use nothing if editing, or cat nr. when not editing
       if(key == "" & !("key" %in% edit())){
         key <- as.character(i)
       }
-      key_edit <- textInput(session$ns(paste0("key_",i)), NULL, value = key, width = "100%")
+      key_edit <- textInput(session$ns(key_id), NULL, value = key, width = "100%")
       if(!("key" %in% edit())){
         key_edit <- shinyjs::disabled(key_edit)
       }
       
       val <- ifelse(i > length(val), "", val[[i]])
+      
+      # values already entered, keep it here
+      if(!is.null(input[[val_id]])){
+        val <- input[[val_id]]
+      }
+      
       if(val == "" & !("value" %in% edit())){
         val <- as.character(i)
       }
-      val_edit <- textInput(session$ns(paste0("val_",i)), NULL, value = val, width = "100%")
+      val_edit <- textInput(session$ns(val_id), NULL, value = val, width = "100%")
       if(!("value" %in% edit())){
         val_edit <- shinyjs::disabled(val_edit)
       }
@@ -148,9 +168,12 @@ return(txt_out)
 test_jsonedit <- function(){
   
   library(shiny)
+  library(softui)
+  library(shinyjs)
   
-  ui <- fluidPage(style = "margin: auto; width: 600px;",
+  ui <- softui::simple_page(style = "margin: auto; width: 600px;",
                   useShinyjs(),
+                  
                   jsonEditModuleUI("test"),
       verbatimTextOutput("txt_out")
       

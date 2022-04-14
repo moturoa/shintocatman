@@ -11,13 +11,14 @@ colorVectorPickModuleUI <- function(id, label = "Kleuren kiezen",
 
   ns <- NS(id)
 
-  actionButton(ns("btn"),label, icon = icon, class = class)
+  shiny::actionButton(ns("btn"),label, icon = icon, class = class)
 
 }
 
 #' @rdname colorVector
 #' @export
 #' @importFrom colourpicker colourInput
+#' @importFrom pals parula viridis
 colorVectorPickModule <- function(input, output, session,
                                   n_colors = reactive(NULL),
                                   current_colors = reactive(NULL),
@@ -30,7 +31,7 @@ colorVectorPickModule <- function(input, output, session,
   color_ids <- reactiveVal()
   color_choices <- reactiveVal()
 
-  observeEvent(input$btn, {
+  shiny::observeEvent(input$btn, {
 
     my_col_pick <- function(...){
       colourpicker::colourInput(..., showColour = "both", allowTransparent = TRUE)
@@ -58,22 +59,24 @@ colorVectorPickModule <- function(input, output, session,
     ids <- uuid::UUIDgenerate(n = n_col)
     color_ids(ids)
 
-    showModal(
-      modalDialog(
+    shiny::showModal(
+      shiny::modalDialog(
         title = "Kies kleuren",
         size = "m",
-        footer = tagList(actionButton(session$ns("btn_confirm_colours"),
+        footer = htmltools::tagList(
+            shiny::actionButton(session$ns("btn_confirm_colours"),
                                       "Opslaan",
                                       icon = icon("check"),
                                       class = "btn-success"),
-                         htmltools::tagAppendAttributes(modalButton("Annuleren"), class = "btn-danger")
+                         htmltools::tagAppendAttributes(shiny::modalButton("Annuleren"), 
+                                                        class = "btn-danger")
         ),
 
         lapply(1:n_col, function(i){
           my_col_pick(session$ns(ids[i]), labs[i], cur_colors[i])
         }),
 
-        actionButton(session$ns("btn_make_gradient"),
+        shiny::actionButton(session$ns("btn_make_gradient"),
                      "Gradient vullen",
                      #label_tooltip("Kleuren invullen als gradient van eerste naar laatste kleur."),
                      icon = icon("paint-brush"))
