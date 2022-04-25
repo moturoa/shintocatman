@@ -175,8 +175,7 @@ test_jsonedit <- function(){
   library(shinyjs)
   
   ui <- softui::simple_page(style = "margin: auto; width: 600px;",
-                  useShinyjs(),
-                  
+
                   jsonEditModuleUI("test"),
       verbatimTextOutput("txt_out")
       
