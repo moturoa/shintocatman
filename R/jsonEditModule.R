@@ -8,7 +8,6 @@
 jsonEditModuleUI <- function(id, class = "", icon = NULL, label = "Edit values"){
   
   ns <- NS(id)
-  
   actionButton(ns("btn"),label, icon = icon, class = class)
   
 }
@@ -82,9 +81,11 @@ jsonEditModule <- function(input, output, session,
       key <- ifelse(i > length(val), "", names(val)[i])
     
       # values already entered, keep it here
-      if(!is.null(input[[key_id]])){
-        key <- input[[key_id]]
-      }
+      isolate({
+        if(!is.null(input[[key_id]])){
+          key <- input[[key_id]]
+        }  
+      })
       
       # if still no value found, use nothing if editing, or cat nr. when not editing
       if(key == "" & !("key" %in% edit())){
@@ -98,9 +99,11 @@ jsonEditModule <- function(input, output, session,
       val <- ifelse(i > length(val), "", val[[i]])
       
       # values already entered, keep it here
-      if(!is.null(input[[val_id]])){
-        val <- input[[val_id]]
-      }
+      isolate({
+        if(!is.null(input[[val_id]])){
+          val <- input[[val_id]]
+        }  
+      })
       
       if(val == "" & !("value" %in% edit())){
         val <- as.character(i)
