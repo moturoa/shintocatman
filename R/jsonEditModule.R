@@ -145,7 +145,7 @@ jsonEditModule <- function(input, output, session,
     req(n>0)
     
     for(i in 1:n){
-      val[[i]] <- input[[paste0("val_",i)]]   
+      val[[i]] <- input[[paste0("val_",i)]]
     }  
   
     for(i in 1:n){
@@ -176,8 +176,12 @@ test_jsonedit <- function(){
   
   ui <- softui::simple_page(style = "margin: auto; width: 600px;",
 
-                  jsonEditModuleUI("test"),
-      verbatimTextOutput("txt_out")
+          softui::box(
+            jsonEditModuleUI("test"),
+            verbatimTextOutput("txt_out")
+          )                  
+                          
+                  
       
   )
   
