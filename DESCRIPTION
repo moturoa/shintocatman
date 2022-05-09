@@ -3,7 +3,7 @@ Type: Package
 Title: Category management
 Version: 0.1-2
 Author: Remko Duursma
-Depends: shiny,jsonlite
+Depends: shiny,jsonlite,colourpicker
 Maintainer: Remko Duursma <remko@shintolabs.nl>
 Description: Zoeken, data ophalen, depseudonimiseren. Wrappers voor REST calls, etc.
 License: CC0
