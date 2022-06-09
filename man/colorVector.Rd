@@ -9,7 +9,7 @@ colorVectorPickModuleUI(
   id,
   label = "Kleuren kiezen",
   icon = softui::bsicon("palette-fill"),
-  class = "btn-success"
+  status = "success"
 )
 
 colorVectorPickModule(
@@ -22,6 +22,15 @@ colorVectorPickModule(
   show_order = reactive(NULL),
   callback = function(data) { }
 )
+}
+\arguments{
+\item{id}{Shiny input ID}
+
+\item{label}{Label for button}
+
+\item{icon}{An icon for the button}
+
+\item{status}{Button status color in \code{\link[softui:action_button]{softui::action_button()}}}
 }
 \description{
 Shiny color vector editor

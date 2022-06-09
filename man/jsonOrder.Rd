@@ -23,5 +23,5 @@ jsonOrderModule(
 \item{opties}{"verwijderen", "toevoegen", or both}
 }
 \description{
-Editor for ordering a JSON vector e.g. [1,2,3,4]
+Editor for ordering a JSON vector e.g. \link{1,2,3,4}
 }

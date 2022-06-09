@@ -10,6 +10,6 @@ from_json(x, ...)
 to_json(x, ...)
 }
 \description{
-Wrapper around `jsonlite::fromJSON`, returns input argument if it
+Wrapper around \code{jsonlite::fromJSON}, returns input argument if it
 cannot be converted from JSON.
 }

@@ -9,3 +9,4 @@ Description: Zoeken, data ophalen, depseudonimiseren. Wrappers voor REST calls, 
 License: CC0
 Encoding: UTF-8
 RoxygenNote: 7.1.2
+Roxygen: list(markdown = TRUE)

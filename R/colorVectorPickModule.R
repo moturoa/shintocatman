@@ -3,15 +3,19 @@
 
 
 #' Shiny color vector editor
+#' @param id Shiny input ID
+#' @param label Label for button
+#' @param icon An icon for the button
+#' @param status Button status color in [softui::action_button()]
 #' @rdname colorVector
 #' @export
 colorVectorPickModuleUI <- function(id, label = "Kleuren kiezen", 
                                     icon = softui::bsicon("palette-fill"), 
-                                    class = "btn-success"){
+                                    status = "success"){
 
   ns <- NS(id)
 
-  shiny::actionButton(ns("btn"),label, icon = icon, class = class)
+  softui::action_button(ns("btn"),label, icon = icon, status = status)
 
 }
 
