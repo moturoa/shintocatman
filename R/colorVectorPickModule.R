@@ -23,6 +23,7 @@ colorVectorPickModuleUI <- function(id, label = "Kleuren kiezen",
 #' @export
 #' @importFrom colourpicker colourInput
 #' @importFrom pals parula viridis
+#' @importFrom htmltools tagAppendAttributes
 colorVectorPickModule <- function(input, output, session,
                                   n_colors = reactive(NULL),
                                   current_colors = reactive(NULL),
@@ -32,8 +33,8 @@ colorVectorPickModule <- function(input, output, session,
                                   ) {
 
 
-  color_ids <- reactiveVal()
-  color_choices <- reactiveVal()
+  color_ids <- shiny::reactiveVal()
+  color_choices <- shiny::reactiveVal()
 
   shiny::observeEvent(input$btn, {
 
@@ -64,26 +65,20 @@ colorVectorPickModule <- function(input, output, session,
     color_ids(ids)
 
     shiny::showModal(
-      shiny::modalDialog(
+      softui::modal(
         title = "Kies kleuren",
         size = "m",
-        footer = htmltools::tagList(
-            shiny::actionButton(session$ns("btn_confirm_colours"),
-                                      "Opslaan",
-                                      icon = icon("check"),
-                                      class = "btn-success"),
-                         htmltools::tagAppendAttributes(shiny::modalButton("Annuleren"), 
-                                                        class = "btn-danger")
-        ),
-
+        id_confirm = "btn_confirm_colours", 
+        confirm_txt = "Opslaan",
+        close_txt = "Annuleren",
+        
         lapply(1:n_col, function(i){
           my_col_pick(session$ns(ids[i]), labs[i], cur_colors[i])
         }),
 
-        shiny::actionButton(session$ns("btn_make_gradient"),
-                     "Gradient vullen",
-                     #label_tooltip("Kleuren invullen als gradient van eerste naar laatste kleur."),
-                     icon = icon("paint-brush"))
+        softui::action_button(session$ns("btn_make_gradient"),
+                     "Gradient vullen", status = "secondary",
+                     icon = softui::bsicon("brush-fill"))
       )
     )
 
@@ -117,7 +112,6 @@ colorVectorPickModule <- function(input, output, session,
     }
     color_choices(cols)
     callback()
-    removeModal()
   })
 
 
@@ -129,9 +123,8 @@ colorVectorPickModule <- function(input, output, session,
 
 test_colorVectorPickModule <- function(){
   
-  ui <- fluidPage(
+  ui <- softui::simple_page(
   
-    #softui::softui_dependencies(),
     colorVectorPickModuleUI("test"),
     tags$hr(),
     verbatimTextOutput("txt_out")
