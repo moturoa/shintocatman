@@ -19,6 +19,16 @@ colorVectorPickModuleUI <- function(id, label = "Kleuren kiezen",
 
 }
 
+
+
+#' @param input Shiny input, do not set
+#' @param input Shiny output, do not set
+#' @param input Shiny session, do not set
+#' @param n_colors Number of colors - reactive
+#' @param current_colors Vector of current colors - reactive
+#' @param labels Vector of labels - reactive
+#' @param show_order Vector of ordering of the colors (integer) -  reactive
+#' @param callback Function to call after the colors have been chosen.
 #' @rdname colorVector
 #' @export
 #' @importFrom colourpicker colourInput
