@@ -37,25 +37,24 @@ jsonEditModule <- function(input, output, session,
   
   observeEvent(input$btn, {
     
-    
     showModal(
-      modalDialog(
+      softui::modal(
+        
+        id_confirm = "btn_save", confirm_txt = options_labels[["save"]],
+        close_txt = "Annuleren",
         
         tags$div(
-          uiOutput(session$ns("ui_edit")),
+            uiOutput(session$ns("ui_edit")),
                  
-                 if("add" %in% options()){
-                   actionButton(session$ns("btn_add_cat"), options_labels[["add"]], 
-                                icon = softui:::bsicon("plus"))
-                 },
-                 if("delete" %in% options()){
-                   actionButton(session$ns("btn_del_cat"), options_labels[["delete"]], 
-                                icon = softui::bsicon("minus"), class = "btn-warning")  
-                 },
-                 
-                 actionButton(session$ns("btn_save"), options_labels[["save"]], 
-                              class = "btn-success",
-                              icon = softui::bsicon("save-fill"))
+            if("add" %in% options()){
+              softui::action_button(session$ns("btn_add_cat"), options_labels[["add"]], 
+                                    status = "secondary",
+                           icon = softui:::bsicon("plus"))
+            },
+            if("delete" %in% options()){
+              softui::action_button(session$ns("btn_del_cat"), options_labels[["delete"]], 
+                          icon = softui::bsicon("minus"), status = "warning")  
+            }
         )
       )
     )
@@ -70,56 +69,61 @@ jsonEditModule <- function(input, output, session,
     
     # number of categories
     n <- n_cat()
-    req(n>0)
     
-    lapply(1:n, function(i){
-     
-      key_id <- paste0("key_",i)
-      val_id <- paste0("val_",i)
+    if(n == 0){
+      tags$p(glue("Klik {options_labels[['add']]} om een optie toe te voegen"))
+    } else {
+        
+      lapply(1:n, function(i){
+       
+        key_id <- paste0("key_",i)
+        val_id <- paste0("val_",i)
+        
+        # Read key from input data, or if n_cat > length(provided), set to ""
+        key <- ifelse(i > length(val), "", names(val)[i])
       
-      # Read key from input data, or if n_cat > length(provided), set to ""
-      key <- ifelse(i > length(val), "", names(val)[i])
-    
-      # values already entered, keep it here
-      isolate({
-        if(!is.null(input[[key_id]])){
-          key <- input[[key_id]]
-        }  
+        #- dit is wel handig omdat we dan edits bewaren zonder eerst naar DB te schrijven
+        # maar dit geeft serieuze bugs
+        # values already entered, keep it here
+        # isolate({
+        #   if(!is.null(input[[key_id]])){
+        #     key <- input[[key_id]]
+        #   }  
+        # })
+        
+        # if still no value found, use nothing if editing, or cat nr. when not editing
+        if(key == "" & !("key" %in% edit())){
+          key <- as.character(i)
+        }
+        key_edit <- textInput(session$ns(key_id), NULL, value = key, width = "100%")
+        if(!("key" %in% edit())){
+          key_edit <- shinyjs::disabled(key_edit)
+        }
+        
+        val <- ifelse(i > length(val), "", val[[i]])
+        
+        # values already entered, keep it here
+        # isolate({
+        #   if(!is.null(input[[val_id]])){
+        #     val <- input[[val_id]]
+        #   }  
+        # })
+        
+        if(val == "" & !("value" %in% edit())){
+          val <- as.character(i)
+        }
+        val_edit <- textInput(session$ns(val_id), NULL, value = val, width = "100%")
+        if(!("value" %in% edit())){
+          val_edit <- shinyjs::disabled(val_edit)
+        }
+      
+        softui::fluid_row(
+          column(widths[1], key_edit),
+          column(widths[2], val_edit)
+        )
+        
       })
-      
-      # if still no value found, use nothing if editing, or cat nr. when not editing
-      if(key == "" & !("key" %in% edit())){
-        key <- as.character(i)
-      }
-      key_edit <- textInput(session$ns(key_id), NULL, value = key, width = "100%")
-      if(!("key" %in% edit())){
-        key_edit <- shinyjs::disabled(key_edit)
-      }
-      
-      val <- ifelse(i > length(val), "", val[[i]])
-      
-      # values already entered, keep it here
-      isolate({
-        if(!is.null(input[[val_id]])){
-          val <- input[[val_id]]
-        }  
-      })
-      
-      if(val == "" & !("value" %in% edit())){
-        val <- as.character(i)
-      }
-      val_edit <- textInput(session$ns(val_id), NULL, value = val, width = "100%")
-      if(!("value" %in% edit())){
-        val_edit <- shinyjs::disabled(val_edit)
-      }
-    
-      softui::fluid_row(
-        column(widths[1], key_edit),
-        column(widths[2], val_edit)
-      )
-      
-    })
-    
+    }
   })
   
   
@@ -173,10 +177,17 @@ test_jsonedit <- function(){
   library(shiny)
   library(softui)
   library(shinyjs)
+  devtools::load_all()
   
   ui <- softui::simple_page(style = "margin: auto; width: 600px;",
 
           softui::box(
+            selectInput("sel_val", "Edit iets", 
+                        choices =c("[]",
+                                   '{"1":"Banaan","2":"Appel","3":"Aardbei"}',
+                                   '{"1":"Hallo","2":"Goedendag","3":"Tot ziens"}')),
+                      
+                                    
             jsonEditModuleUI("test"),
             verbatimTextOutput("txt_out")
           )                  
@@ -192,8 +203,8 @@ test_jsonedit <- function(){
                              options = reactive(c("add","delete")),
                              edit = reactive("value"),
                              widths = c(2,10),
-                             value = reactive("[]"))
-                               #reactive("{\"1\":\"\",\"2\":\"Gereed\",\"3\":\"In aanbouw genomen\",\"4\":\"Intake\",\"5\":\"Onherroepelijk plan/besluit\",\"6\":\"Ontwerpplan/besluit\",\"7\":\"Planologische voorbereiding\",\"8\":\"Potentieel\",\"9\":\"Start Project\",\"10\":\"Vastgesteld plan/besluit\",\"11\":\"Vergunning verleend\"}"))
+                             value = reactive(input$sel_val))
+                            
    
 
     output$txt_out <- renderPrint({

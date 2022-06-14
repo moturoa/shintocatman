@@ -31,6 +31,18 @@ colorVectorPickModule(
 \item{icon}{An icon for the button}
 
 \item{status}{Button status color in \code{\link[softui:action_button]{softui::action_button()}}}
+
+\item{input}{Shiny session, do not set}
+
+\item{n_colors}{Number of colors - reactive}
+
+\item{current_colors}{Vector of current colors - reactive}
+
+\item{labels}{Vector of labels - reactive}
+
+\item{show_order}{Vector of ordering of the colors (integer) -  reactive}
+
+\item{callback}{Function to call after the colors have been chosen.}
 }
 \description{
 Shiny color vector editor

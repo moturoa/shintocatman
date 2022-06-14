@@ -1,5 +1,5 @@
 
-
+# Unexported; undocumented; probably obsolete
 
 
 datatableEditModuleUI <- function(id){
@@ -105,9 +105,6 @@ datatableEditModule <- function(input, output, session,
   })
   
 
-  
-  
-  
   output$dt_main <- DT::renderDT({
     
     isolate(data_formatted()) %>%
