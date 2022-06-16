@@ -26,6 +26,7 @@ jsonEditModule <- function(input, output, session,
   
   
   value_txt <- reactive({
+    req(value())
     jsonlite::fromJSON(value())
   })
   
