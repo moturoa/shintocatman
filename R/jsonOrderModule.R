@@ -6,11 +6,11 @@
 #' @param input
 #' @rdname jsonOrder
 #' @export
-jsonOrderModuleUI <- function(id, label = "Change order", icon = NULL, class = ""){
+jsonOrderModuleUI <- function(id, label = "Change order", icon = NULL, status = "secondary"){
   
   ns <- NS(id)
   
-  actionButton(ns("btn"),label, icon = icon, class = class)
+  softui::action_button(ns("btn"),label, icon = icon, status = status)
   
 }
 
@@ -23,6 +23,8 @@ jsonOrderModule <- function(input, output, session,
                             data = reactive(NULL),
                             order_column = reactive(NULL),
                             label_column = reactive(NULL),
+                            title = "Drag to change the order",
+                            header_ui = NULL,
                             callback = function(data){}
                             ){
   
@@ -42,22 +44,19 @@ jsonOrderModule <- function(input, output, session,
   observeEvent(input$btn, {
     
     showModal(
-      modalDialog(
-        title = "Drag to change the order",
+      softui::modal(
+        title = title,
+        id_confirm = "btn_confirm", close_txt = "Annuleren",
+        
+        header_ui,
+        
         sortable::rank_list(
           text = "",
           labels = labels(),
           input_id = session$ns("value")
-        ),
-        footer = tagList(actionButton(session$ns("btn_confirm"),
-                                      "Opslaan",
-                                      icon = icon("check"),
-                                      class = "btn-success"),
-                         htmltools::tagAppendAttributes(modalButton("Annuleren"), class = "btn-danger")
+        )
         )
       )
-    )
-    
     
   })
   
@@ -69,12 +68,10 @@ jsonOrderModule <- function(input, output, session,
   
   observeEvent(input$btn_confirm, {
     
-    output_vector(
-      to_json(as.list(order_int()))  
-    )
+    out <- to_json(as.list(order_int()))  
+    callback(out)
     
-    callback()
-    removeModal()
+    output_vector(out)
     
   })
   
