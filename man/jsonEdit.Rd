@@ -5,7 +5,7 @@
 \alias{jsonEditModule}
 \title{Shiny JSON edit module}
 \usage{
-jsonEditModuleUI(id, class = "", icon = NULL, label = "Edit values")
+jsonEditModuleUI(id, icon = NULL, label = "Edit values", status = "secondary")
 
 jsonEditModule(
   input,

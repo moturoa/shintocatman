@@ -10,7 +10,7 @@ jsonOrderModuleUI <- function(id, label = "Change order", icon = NULL, status = 
   
   ns <- NS(id)
   
-  softui::action_button(ns("btn"),label, icon = icon, status = status)
+  softui::action_button(ns("btn"), label, icon = icon, status = status)
   
 }
 

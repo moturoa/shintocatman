@@ -5,10 +5,10 @@
 #' @param input
 #' @rdname jsonEdit
 #' @export
-jsonEditModuleUI <- function(id, class = "", icon = NULL, label = "Edit values"){
+jsonEditModuleUI <- function(id, icon = NULL, label = "Edit values", status = "secondary"){
   
   ns <- NS(id)
-  actionButton(ns("btn"),label, icon = icon, class = class)
+  softui::action_button(ns("btn"),label, icon = icon, status = status)
   
 }
 
