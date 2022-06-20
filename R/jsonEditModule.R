@@ -140,6 +140,17 @@ jsonEditModule <- function(input, output, session,
     
   })
   
+  observeEvent(n_cat(), {
+    
+    n <- n_cat()
+    
+    for(i in seq_len(n)){
+      id <- paste0("val_",i)
+      updateTextInput(session, id, value = input[[id]])
+    }
+    
+  })
+  
   txt_out <- reactiveVal()
   
   observeEvent(input$btn_save, {
@@ -191,8 +202,7 @@ test_jsonedit <- function(){
                                     
             jsonEditModuleUI("test"),
             verbatimTextOutput("txt_out")
-          )                  
-                          
+          )
                   
       
   )
