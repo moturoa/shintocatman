@@ -86,9 +86,52 @@ colorVectorPickModule <- function(input, output, session,
           my_col_pick(session$ns(ids[i]), labs[i], cur_colors[i])
         }),
 
-        softui::action_button(session$ns("btn_make_gradient"),
-                     "Gradient vullen", status = "secondary",
+        tags$hr(),
+        
+        softui::fluid_row(
+          column(7, 
+                 tags$p("Interpoleer de kleuren tussen de eerste en laatste gekozen kleur.")
+                 
+          ),
+          column(5, 
+                 softui::action_button(session$ns("btn_make_gradient"),
+                     "Maak gradient", status = "secondary",
                      icon = softui::bsicon("brush-fill"))
+          )
+        ),
+        
+        tags$hr(),
+        
+        tags$p("Of kies een palet om kleuren aan te maken:"),
+        softui::fluid_row(
+          
+          column(7, 
+                 
+            selectInput(session$ns("sel_palette"), "Kies palette",
+                        choices = c(
+                                   "Parula" = "parula",
+                                   "Blauw" = "brewer.blues",
+                                   "Blauw - Rood" = "coolwarm",
+                                   "Rood - Blauw" = "warmcool",
+                                   "Geel - Rood" = "brewer.ylorrd",
+                                   "Oranje" = "brewer.oranges",
+                                   "Ocean" = "ocean.haline",
+                                   "Cubic" = "cubicl",
+                                   "Ocean 2" = "ocean.phase",
+                                   "Viridis" = "viridis",
+                                   "Rainbow" = "kovesi.rainbow",
+                                   "Jet" = "jet"
+                                   ))
+          ),
+          column(5, style = "padding-top: 24px;",
+                 
+              softui::action_button(session$ns("btn_fill_gradient"),
+                                    "Vul met palette",
+                                    status = "info", 
+                                    icon = softui::bsicon("palette-fill"))
+          )
+          
+        )
       )
     )
 
@@ -112,6 +155,20 @@ colorVectorPickModule <- function(input, output, session,
 
   })
 
+  observeEvent(input$btn_fill_gradient, {
+    
+    ids <- color_ids()
+    n <- length(ids)
+    palfun <- getFromNamespace(input$sel_palette, "pals")
+    cols <- palfun(n)
+    
+    for(i in 1:n){
+      colourpicker::updateColourInput(session,
+                                      ids[i],
+                                      value = cols[i])
+    }
+    
+  })
 
   observeEvent(input$btn_confirm_colours, {
 
@@ -132,6 +189,8 @@ colorVectorPickModule <- function(input, output, session,
 
 
 test_colorVectorPickModule <- function(){
+  
+  devtools::load_all()
   
   ui <- softui::simple_page(
   
