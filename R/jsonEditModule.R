@@ -55,7 +55,13 @@ jsonEditModule <- function(input, output, session,
   
   value_txt <- reactive({
     req(value())
-    jsonlite::fromJSON(value())
+    
+    out <- jsonlite::fromJSON(value())
+    if(!is.list(value) && value == ""){
+      out <- jsonlite::fromJSON("[]")
+    }
+    out
+    
   })
   
   n_cat <- reactiveVal()
