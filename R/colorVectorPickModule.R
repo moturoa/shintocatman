@@ -9,13 +9,11 @@
 #' @param status Button status color in [softui::action_button()]
 #' @rdname colorVector
 #' @export
-colorVectorPickModuleUI <- function(id, label = "Kleuren kiezen", 
-                                    icon = softui::bsicon("palette-fill"), 
-                                    status = "success"){
+colorVectorPickModuleUI <- function(id){
 
   ns <- NS(id)
 
-  softui::action_button(ns("btn"),label, icon = icon, status = status)
+  uiOutput(ns("ui_color_editor"))
 
 }
 
@@ -28,116 +26,119 @@ colorVectorPickModuleUI <- function(id, label = "Kleuren kiezen",
 #' @param current_colors Vector of current colors - reactive
 #' @param labels Vector of labels - reactive
 #' @param show_order Vector of ordering of the colors (integer) -  reactive
-#' @param callback Function to call after the colors have been chosen.
 #' @rdname colorVector
 #' @export
 #' @importFrom colourpicker colourInput
 #' @importFrom pals parula viridis
 #' @importFrom htmltools tagAppendAttributes
+#' @importFrom utils getFromNamespace
+#' 
 colorVectorPickModule <- function(input, output, session,
                                   n_colors = reactive(NULL),
                                   current_colors = reactive(NULL),
                                   labels = reactive(NULL),
                                   show_order = reactive(NULL),
-                                  callback = function(data){}
-                                  ) {
+                                  palettes_from_pals = c(
+                                    "Parula" = "parula",
+                                    "Blauw" = "brewer.blues",
+                                    "Blauw - Rood" = "coolwarm",
+                                    "Rood - Blauw" = "warmcool",
+                                    "Geel - Rood" = "brewer.ylorrd",
+                                    "Oranje" = "brewer.oranges",
+                                    "Ocean" = "ocean.haline",
+                                    "Cubic" = "cubicl",
+                                    "Ocean 2" = "ocean.phase",
+                                    "Viridis" = "viridis",
+                                    "Rainbow" = "kovesi.rainbow",
+                                    "Jet" = "jet"
+                                  )) {
 
+  # Util (intern)
+  my_col_pick <- function(...){
+    colourpicker::colourInput(..., showColour = "both", allowTransparent = TRUE)
+  }
 
   color_ids <- shiny::reactiveVal()
-  color_choices <- shiny::reactiveVal()
 
-  shiny::observeEvent(input$btn, {
-
-    my_col_pick <- function(...){
-      colourpicker::colourInput(..., showColour = "both", allowTransparent = TRUE)
-    }
-
+  
+  output$ui_color_editor <- shiny::renderUI({
+    
     n_col <- n_colors()
     req(n_col > 0)
-
+    
+    # Input colors to edit; if none given fill all with white
     cur_colors <- current_colors()
     if(is.null(cur_colors)){
       cur_colors <- rep("#FFF", n_col)
     }
-
+    
+    # Labels for colors. If not given, make 1:n
     labs <- labels()
     if(is.null(labs)){
       labs <- as.character(1:n_col)
     }
     
+    # Order of the colors (this can be input with a separate reactive vector)
     ord <- show_order()
     if(!is.null(ord)){
       labs <- labs[ord]
       cur_colors <- cur_colors[ord]
     }
-
+    
+    # IDs for the color input fields
     ids <- uuid::UUIDgenerate(n = n_col)
     color_ids(ids)
-
-    shiny::showModal(
-      softui::modal(
-        title = "Kies kleuren",
-        size = "m",
-        id_confirm = "btn_confirm_colours", 
-        confirm_txt = "Opslaan",
-        close_txt = "Annuleren",
-        
-        lapply(1:n_col, function(i){
-          my_col_pick(session$ns(ids[i]), labs[i], cur_colors[i])
-        }),
-
-        tags$hr(),
-        
-        softui::fluid_row(
-          column(7, 
-                 tags$p("Interpoleer de kleuren tussen de eerste en laatste gekozen kleur.")
-                 
-          ),
-          column(5, 
-                 softui::action_button(session$ns("btn_make_gradient"),
-                     "Maak gradient", status = "secondary",
-                     icon = softui::bsicon("brush-fill"))
-          )
+    
+    
+    shiny::tagList(
+      
+      # UI for color editors
+      lapply(1:n_col, function(i){
+        my_col_pick(session$ns(ids[i]), labs[i], cur_colors[i])
+      }),
+      
+      shiny::tags$hr(),
+      
+      # interpolate colors
+      softui::fluid_row(
+        shiny::column(7, 
+               shiny::tags$p("Interpoleer de kleuren tussen de eerste en laatste gekozen kleur.")
+               
         ),
-        
-        tags$hr(),
-        
-        tags$p("Of kies een palet om kleuren aan te maken:"),
-        softui::fluid_row(
-          
-          column(7, 
-                 
-            selectInput(session$ns("sel_palette"), "Kies palette",
-                        choices = c(
-                                   "Parula" = "parula",
-                                   "Blauw" = "brewer.blues",
-                                   "Blauw - Rood" = "coolwarm",
-                                   "Rood - Blauw" = "warmcool",
-                                   "Geel - Rood" = "brewer.ylorrd",
-                                   "Oranje" = "brewer.oranges",
-                                   "Ocean" = "ocean.haline",
-                                   "Cubic" = "cubicl",
-                                   "Ocean 2" = "ocean.phase",
-                                   "Viridis" = "viridis",
-                                   "Rainbow" = "kovesi.rainbow",
-                                   "Jet" = "jet"
-                                   ))
-          ),
-          column(5, style = "padding-top: 24px;",
-                 
-              softui::action_button(session$ns("btn_fill_gradient"),
-                                    "Vul met palette",
-                                    status = "info", 
-                                    icon = softui::bsicon("palette-fill"))
-          )
-          
+        shiny::column(5, 
+               softui::action_button(session$ns("btn_make_gradient"),
+                                     "Maak gradient", status = "secondary",
+                                     icon = softui::bsicon("brush-fill"))
         )
+      ),
+      
+      shiny::tags$hr(),
+      
+      # choose a color palette
+      shiny::tags$p("Of kies een palet om kleuren aan te maken:"),
+      softui::fluid_row(
+        
+        shiny::column(7, 
+               
+          shiny::selectInput(session$ns("sel_palette"), "Kies palette",
+               choices = palettes_from_pals)
+        ),
+        shiny::column(5, style = "padding-top: 24px;",
+               
+               softui::action_button(session$ns("btn_fill_gradient"),
+                                     "Vul met palette",
+                                     status = "info", 
+                                     icon = softui::bsicon("palette-fill"))
+        )
+        
       )
     )
-
+    
+    
   })
 
-  observeEvent(input$btn_make_gradient, {
+  # make gradient from color 1 to color n
+  shiny::observeEvent(input$btn_make_gradient, {
 
     ids <- color_ids()
     req(length(ids)>2)
@@ -145,7 +146,7 @@ colorVectorPickModule <- function(input, output, session,
     n <- length(ids)
     col1 <- input[[ids[1]]]
     col2 <- input[[ids[n]]]
-    cols <- colorRampPalette(c(col1,col2))(n)
+    cols <- grDevices::colorRampPalette(c(col1,col2))(n)
 
     for(i in 2:(n-1)){
       colourpicker::updateColourInput(session,
@@ -155,11 +156,15 @@ colorVectorPickModule <- function(input, output, session,
 
   })
 
-  observeEvent(input$btn_fill_gradient, {
+  # fill all values with values from a color generating function,
+  # from the pals package
+  shiny::observeEvent(input$btn_fill_gradient, {
     
     ids <- color_ids()
     n <- length(ids)
-    palfun <- getFromNamespace(input$sel_palette, "pals")
+    
+    # ONLY from pals package
+    palfun <- utils::getFromNamespace(input$sel_palette, "pals")
     cols <- palfun(n)
     
     for(i in 1:n){
@@ -170,19 +175,19 @@ colorVectorPickModule <- function(input, output, session,
     
   })
 
-  observeEvent(input$btn_confirm_colours, {
+  out <- shiny::reactive({
 
     cols <- c()
     ids <- color_ids()
     for(i in 1:length(ids)){
       cols[i] <- input[[ids[i]]]
     }
-    color_choices(cols)
-    callback()
+    cols
+    
   })
 
 
-  return(color_choices)
+  return(out)
 }
 
 
@@ -193,11 +198,21 @@ test_colorVectorPickModule <- function(){
   devtools::load_all()
   
   ui <- softui::simple_page(
+    
+    softui::fluid_row(
   
-    colorVectorPickModuleUI("test"),
-    tags$hr(),
-    verbatimTextOutput("txt_out")
-  
+      softui::box(title = "Colors", width = 4,
+        colorVectorPickModuleUI("test"),
+        tags$hr(),
+        verbatimTextOutput("txt_out")
+      ),
+      softui::box(title = "Colors", width = 4,
+                  softui::action_button("btn1", "Edit colors!", status = "success",
+                                        icon = bsicon("palette")),
+                  tags$hr(),
+                  verbatimTextOutput("txt_out2")
+      )
+    )
   )
   
   server <- function(input, output, session) {
@@ -206,14 +221,28 @@ test_colorVectorPickModule <- function(){
                n_colors = reactive(5),
                current_colors = reactive(pals::parula(5)),
                labels = reactive(c("aap","banaan","boom","tak","modder")),
-               show_order = reactive(c(5,1,2,3,4)),
-               callback = function(data){print("GELUKT!!")}
+               show_order = reactive(c(5,1,2,3,4))
                )
   
     output$txt_out <- renderPrint({
       out()
     })
+    
+    out2 <- softui::modalize(trigger_open = reactive(input$btn1),
+                                    ui_module = colorVectorPickModuleUI,
+                                    server_module = colorVectorPickModule,
+                                    server_pars = list(
+                                      n_colors = reactive(5),
+                                      current_colors = reactive(pals::parula(5)),
+                                      labels = reactive(c("aap","banaan","boom","tak","modder")),
+                                      show_order = reactive(c(5,1,2,3,4))
+                                    )
+    )    
   
+    output$txt_out2 <- renderPrint({
+      out2()
+    })
+    
   }
   
   
