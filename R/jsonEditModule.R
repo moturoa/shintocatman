@@ -57,7 +57,8 @@ jsonEditModule <- function(input, output, session,
     req(value())
     
     out <- jsonlite::fromJSON(value())
-    if(!is.list(value) && value == ""){
+     
+    if(!is.list(value()) && value() == ""){
       out <- jsonlite::fromJSON("[]")
     }
     out
@@ -77,7 +78,7 @@ jsonEditModule <- function(input, output, session,
     
     # number of categories
     n <- n_cat()
-    
+     
     if(n == 0){
       tags$p(glue("Klik {options_labels[['add']]} om een optie toe te voegen"))
     } else {
@@ -100,6 +101,7 @@ jsonEditModule <- function(input, output, session,
         # })
         
         # if still no value found, use nothing if editing, or cat nr. when not editing
+         
         if(key == "" & !("key" %in% edit())){
           key <- as.character(i)
         }
@@ -116,7 +118,7 @@ jsonEditModule <- function(input, output, session,
         #     val <- input[[val_id]]
         #   }  
         # })
-        
+         
         if(val == "" & !("value" %in% edit())){
           val <- as.character(i)
         }
