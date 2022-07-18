@@ -20,7 +20,8 @@ colorVectorPickModule(
   current_colors = reactive(NULL),
   labels = reactive(NULL),
   show_order = reactive(NULL),
-  callback = function(data) { }
+  callback = function(data) {
+ }
 )
 }
 \arguments{

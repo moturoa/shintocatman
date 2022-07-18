@@ -8,5 +8,5 @@ Maintainer: Remko Duursma <remko@shintolabs.nl>
 Description: Zoeken, data ophalen, depseudonimiseren. Wrappers voor REST calls, etc.
 License: CC0
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Roxygen: list(markdown = TRUE)

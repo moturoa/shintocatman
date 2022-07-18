@@ -1,15 +1,27 @@
 #' Shiny JSON edit module
 #' @description Editor for key-value type JSON fields. Edit either or both of the keys and the labels.
-#' @param class CSS class of the editor
-#' @param opties "verwijderen", "toevoegen", or both
-#' @param input
+#' @param options Reactive vector, with none, one or both of 'delete', 'add'. Controls whether
+#' categories can be added and (the last one) removed in the editor.
+#' @param options_labels Labels for the buttons in a named vector
+#' @param edit Reactive vector with 'key', 'value' (one or both). Controls whether
+#' both the key and the value can be edited.
+#' @param widths Vector of bootstrap column widths of key and value (must add up to 12)
+#' @param value Reactive vector (or reactive(NULL)) with values to place in the editor
+#' @param
+#' @param input Shiny input, leave alone
+#' @param output Shiny output, leave alone
+#' @param session Shiny session, leave alone
 #' @rdname jsonEdit
 #' @export
-jsonEditModuleUI <- function(id, icon = NULL, label = "Edit values", status = "secondary"){
+jsonEditModuleUI <- function(id){
   
   ns <- NS(id)
-  softui::action_button(ns("btn"),label, icon = icon, status = status)
   
+  tags$div(
+    shiny::uiOutput(ns("ui_edit")),    # categories / labels
+    shiny::uiOutput(ns("ui_options"))  # add/delete buttons
+  )
+   
 }
 
 #' @rdname jsonEdit
@@ -21,8 +33,24 @@ jsonEditModule <- function(input, output, session,
                                               save = "Opslaan"),
                            edit = reactive(c("key","value")),
                            widths = c(6,6),
-                           value = reactive(NULL),
-                           callback = function(data){}){
+                           value = reactive(NULL)){
+  
+  
+  output$ui_options <- renderUI({
+    
+    tagList(
+      if("add" %in% options()){
+        softui::action_button(session$ns("btn_add_cat"), options_labels[["add"]], 
+                              status = "secondary",
+                              icon = softui:::bsicon("plus-lg"))
+      },
+      if("delete" %in% options()){
+        softui::action_button(session$ns("btn_del_cat"), options_labels[["delete"]], 
+                              icon = softui::bsicon("dash-lg"), status = "warning")  
+      }
+    )
+    
+  })
   
   
   value_txt <- reactive({
@@ -35,34 +63,7 @@ jsonEditModule <- function(input, output, session,
     n_cat(length(value_txt()))
   })
 
-  
-  observeEvent(input$btn, {
-    
-    showModal(
-      softui::modal(
-        
-        id_confirm = "btn_save", confirm_txt = options_labels[["save"]],
-        close_txt = "Annuleren",
-        
-        tags$div(
-            uiOutput(session$ns("ui_edit")),
-                 
-            if("add" %in% options()){
-              softui::action_button(session$ns("btn_add_cat"), options_labels[["add"]], 
-                                    status = "secondary",
-                           icon = softui:::bsicon("plus"))
-            },
-            if("delete" %in% options()){
-              softui::action_button(session$ns("btn_del_cat"), options_labels[["delete"]], 
-                          icon = softui::bsicon("minus"), status = "warning")  
-            }
-        )
-      )
-    )
-    
-  })
-  
-    
+
   output$ui_edit <- renderUI({
     
     # old values (provided as input)
@@ -151,35 +152,40 @@ jsonEditModule <- function(input, output, session,
     
   })
   
-  txt_out <- reactiveVal()
   
-  observeEvent(input$btn_save, {
-    
+  txt_out <- reactive({
     
     val <- value_txt()
     n <- n_cat()
     req(n>0)
     
     for(i in 1:n){
-      val[[i]] <- input[[paste0("val_",i)]]
+      newval <- input[[paste0("val_",i)]]
+      if(!is.null(newval)){
+        val[[i]] <- newval  
+      }
     }  
   
     for(i in 1:n){
-      names(val)[i] <- input[[paste0("key_",i)]]   
+      newkey <- input[[paste0("key_",i)]]
+      if(!is.null(newkey)){
+        names(val)[i] <- newkey  
+      }
+      
     }  
 
     val <- val[1:n_cat()]  # is dit nodig?
     
-    valjson <- jsonlite::toJSON(as.list(val), auto_unbox = TRUE)
+    jsonlite::toJSON(as.list(val), auto_unbox = TRUE)
     
-    txt_out(valjson)
-    
-    removeModal()
-    callback()
   })
+
   
 return(txt_out)
 }
+
+
+
 
 
 
@@ -201,7 +207,11 @@ test_jsonedit <- function(){
                       
                                     
             jsonEditModuleUI("test"),
-            verbatimTextOutput("txt_out")
+            verbatimTextOutput("txt_out"),
+            tags$hr(),
+            
+            softui::action_button("btn_go_modal", "in modal", status = "success"),
+            verbatimTextOutput("txt_out2")
           )
                   
       
@@ -215,11 +225,26 @@ test_jsonedit <- function(){
                              edit = reactive("value"),
                              widths = c(2,10),
                              value = reactive(input$sel_val))
-                            
+    
+    edited_txt2 <- softui::modalize(trigger_open = reactive(input$btn_go_modal),
+                                    ui_module = jsonEditModuleUI,
+                                    server_module = jsonEditModule,
+                                    server_pars = list(
+                                      options = reactive(c("add","delete")),
+                                      edit = reactive("value"),
+                                      widths = c(2,10),
+                                      value = reactive(input$sel_val)
+                                    )
+                                    )                      
+    
    
 
     output$txt_out <- renderPrint({
       edited_txt()
+    }) 
+    
+    output$txt_out2 <- renderPrint({
+      edited_txt2()
     }) 
   }
   

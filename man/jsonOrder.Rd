@@ -21,7 +21,8 @@ jsonOrderModule(
   label_column = reactive(NULL),
   title = "Drag to change the order",
   header_ui = NULL,
-  callback = function(data) { }
+  callback = function(data) {
+ }
 )
 }
 \arguments{

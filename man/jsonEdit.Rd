@@ -5,7 +5,7 @@
 \alias{jsonEditModule}
 \title{Shiny JSON edit module}
 \usage{
-jsonEditModuleUI(id, icon = NULL, label = "Edit values", status = "secondary")
+jsonEditModuleUI(id)
 
 jsonEditModule(
   input,
@@ -16,14 +16,27 @@ jsonEditModule(
     "Opslaan"),
   edit = reactive(c("key", "value")),
   widths = c(6, 6),
-  value = reactive(NULL),
-  callback = function(data) { }
+  value = reactive(NULL)
 )
 }
 \arguments{
-\item{class}{CSS class of the editor}
+\item{input}{Shiny input, leave alone}
 
-\item{opties}{"verwijderen", "toevoegen", or both}
+\item{output}{Shiny output, leave alone}
+
+\item{session}{Shiny session, leave alone}
+
+\item{options}{Reactive vector, with none, one or both of 'delete', 'add'. Controls whether
+categories can be added and (the last one) removed in the editor.}
+
+\item{options_labels}{Labels for the buttons in a named vector}
+
+\item{edit}{Reactive vector with 'key', 'value' (one or both). Controls whether
+both the key and the value can be edited.}
+
+\item{widths}{Vector of bootstrap column widths of key and value (must add up to 12)}
+
+\item{value}{Reactive vector (or reactive(NULL)) with values to place in the editor}
 }
 \description{
 Editor for key-value type JSON fields. Edit either or both of the keys and the labels.

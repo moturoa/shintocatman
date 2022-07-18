@@ -42,6 +42,7 @@ modalize <- function(trigger_open = reactive(NULL),
 
 
 
+
 library(softui)
 
 selUI <- function(id){
@@ -71,10 +72,10 @@ ui <- softui::simple_page(
 server <- function(input, output, session){
   
   out <- modalize(trigger_open = reactive(input$btn),
-                    ui_module = selUI,
-                    server_module = selServer,
-                    title = "Dit is modalize!", size = "fullscreen")
-
+                  ui_module = selUI,
+                  server_module = selServer,
+                  title = "Dit is modalize!", size = "fullscreen")
+  
   
   output$txt_out <- renderPrint({
     out()
@@ -82,6 +83,5 @@ server <- function(input, output, session){
 }
 
 shinyApp(ui, server)
-
 
 
