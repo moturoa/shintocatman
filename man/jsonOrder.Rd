@@ -5,12 +5,7 @@
 \alias{jsonOrderModule}
 \title{Shiny JSON order edit module}
 \usage{
-jsonOrderModuleUI(
-  id,
-  label = "Change order",
-  icon = NULL,
-  status = "secondary"
-)
+jsonOrderModuleUI(id)
 
 jsonOrderModule(
   input,
@@ -18,18 +13,9 @@ jsonOrderModule(
   session,
   data = reactive(NULL),
   order_column = reactive(NULL),
-  label_column = reactive(NULL),
-  title = "Drag to change the order",
-  header_ui = NULL,
-  callback = function(data) {
- }
+  label_column = reactive(NULL)
 )
 }
-\arguments{
-\item{class}{CSS class of the editor}
-
-\item{opties}{"verwijderen", "toevoegen", or both}
-}
 \description{
-Editor for ordering a JSON vector e.g. \link{1,2,3,4}
+Editor for ordering a JSON vector e.g. '\link{1,2,3,4}'
 }

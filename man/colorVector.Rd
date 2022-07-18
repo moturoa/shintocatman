@@ -5,12 +5,7 @@
 \alias{colorVectorPickModule}
 \title{Shiny color vector editor}
 \usage{
-colorVectorPickModuleUI(
-  id,
-  label = "Kleuren kiezen",
-  icon = softui::bsicon("palette-fill"),
-  status = "success"
-)
+colorVectorPickModuleUI(id)
 
 colorVectorPickModule(
   input,
@@ -20,18 +15,14 @@ colorVectorPickModule(
   current_colors = reactive(NULL),
   labels = reactive(NULL),
   show_order = reactive(NULL),
-  callback = function(data) {
- }
+  palettes_from_pals = c(Parula = "parula", Blauw = "brewer.blues", `Blauw - Rood` =
+    "coolwarm", `Rood - Blauw` = "warmcool", `Geel - Rood` = "brewer.ylorrd", Oranje =
+    "brewer.oranges", Ocean = "ocean.haline", Cubic = "cubicl", `Ocean 2` =
+    "ocean.phase", Viridis = "viridis", Rainbow = "kovesi.rainbow", Jet = "jet")
 )
 }
 \arguments{
 \item{id}{Shiny input ID}
-
-\item{label}{Label for button}
-
-\item{icon}{An icon for the button}
-
-\item{status}{Button status color in \code{\link[softui:action_button]{softui::action_button()}}}
 
 \item{input}{Shiny session, do not set}
 
@@ -43,7 +34,11 @@ colorVectorPickModule(
 
 \item{show_order}{Vector of ordering of the colors (integer) -  reactive}
 
-\item{callback}{Function to call after the colors have been chosen.}
+\item{label}{Label for button}
+
+\item{icon}{An icon for the button}
+
+\item{status}{Button status color in \code{\link[softui:action_button]{softui::action_button()}}}
 }
 \description{
 Shiny color vector editor
