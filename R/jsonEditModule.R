@@ -21,11 +21,12 @@ jsonEditModuleUI <- function(id){
     shiny::uiOutput(ns("ui_edit")),    # categories / labels
     shiny::uiOutput(ns("ui_options"))  # add/delete buttons
   )
-   
+  
 }
 
 #' @rdname jsonEdit
 #' @export
+#' @importFrom stringr str_remove_all
 jsonEditModule <- function(input, output, session, 
                            options = reactive(c("delete","add")),
                            options_labels = c(delete = "Laatste verwijderen", 
@@ -57,8 +58,8 @@ jsonEditModule <- function(input, output, session,
     req(value())
     
     out <- jsonlite::fromJSON(value())
-     
-    if(!is.list(value()) && value() == ""){
+    
+    if(!is.list(value()) && stringr::str_remove_all(value(), "\"") == ""){
       out <- jsonlite::fromJSON("[]")
     }
     out
@@ -69,8 +70,8 @@ jsonEditModule <- function(input, output, session,
   observeEvent(value_txt(),{
     n_cat(length(value_txt()))
   })
-
-
+  
+  
   output$ui_edit <- renderUI({
     
     # old values (provided as input)
@@ -78,19 +79,19 @@ jsonEditModule <- function(input, output, session,
     
     # number of categories
     n <- n_cat()
-     
+    
     if(n == 0){
       tags$p(glue("Klik {options_labels[['add']]} om een optie toe te voegen"))
     } else {
-        
+      
       lapply(1:n, function(i){
-       
+        
         key_id <- paste0("key_",i)
         val_id <- paste0("val_",i)
         
         # Read key from input data, or if n_cat > length(provided), set to ""
         key <- ifelse(i > length(val), "", names(val)[i])
-      
+        
         #- dit is wel handig omdat we dan edits bewaren zonder eerst naar DB te schrijven
         # maar dit geeft serieuze bugs
         # values already entered, keep it here
@@ -101,7 +102,7 @@ jsonEditModule <- function(input, output, session,
         # })
         
         # if still no value found, use nothing if editing, or cat nr. when not editing
-         
+        
         if(key == "" & !("key" %in% edit())){
           key <- as.character(i)
         }
@@ -118,7 +119,7 @@ jsonEditModule <- function(input, output, session,
         #     val <- input[[val_id]]
         #   }  
         # })
-         
+        
         if(val == "" & !("value" %in% edit())){
           val <- as.character(i)
         }
@@ -126,7 +127,7 @@ jsonEditModule <- function(input, output, session,
         if(!("value" %in% edit())){
           val_edit <- shinyjs::disabled(val_edit)
         }
-      
+        
         softui::fluid_row(
           column(widths[1], key_edit),
           column(widths[2], val_edit)
@@ -173,7 +174,7 @@ jsonEditModule <- function(input, output, session,
         val[[i]] <- newval  
       }
     }  
-  
+    
     for(i in 1:n){
       newkey <- input[[paste0("key_",i)]]
       if(!is.null(newkey)){
@@ -181,15 +182,15 @@ jsonEditModule <- function(input, output, session,
       }
       
     }  
-
+    
     val <- val[1:n_cat()]  # is dit nodig?
     
     jsonlite::toJSON(as.list(val), auto_unbox = TRUE)
     
   })
-
   
-return(txt_out)
+  
+  return(txt_out)
 }
 
 
@@ -206,23 +207,23 @@ test_jsonedit <- function(){
   devtools::load_all()
   
   ui <- softui::simple_page(style = "margin: auto; width: 600px;",
-
-          softui::box(
-            selectInput("sel_val", "Edit iets", 
-                        choices =c("[]",
-                                   '{"1":"Banaan","2":"Appel","3":"Aardbei"}',
-                                   '{"1":"Hallo","2":"Goedendag","3":"Tot ziens"}')),
-                      
-                                    
-            jsonEditModuleUI("test"),
-            verbatimTextOutput("txt_out"),
-            tags$hr(),
-            
-            softui::action_button("btn_go_modal", "in modal", status = "success"),
-            verbatimTextOutput("txt_out2")
-          )
-                  
-      
+                            
+                            softui::box(
+                              selectInput("sel_val", "Edit iets", 
+                                          choices =c("[]",
+                                                     '{"1":"Banaan","2":"Appel","3":"Aardbei"}',
+                                                     '{"1":"Hallo","2":"Goedendag","3":"Tot ziens"}')),
+                              
+                              
+                              jsonEditModuleUI("test"),
+                              verbatimTextOutput("txt_out"),
+                              tags$hr(),
+                              
+                              softui::action_button("btn_go_modal", "in modal", status = "success"),
+                              verbatimTextOutput("txt_out2")
+                            )
+                            
+                            
   )
   
   server <- function(input, output, session) {
@@ -243,10 +244,10 @@ test_jsonedit <- function(){
                                       widths = c(2,10),
                                       value = reactive(input$sel_val)
                                     )
-                                    )                      
+    )                      
     
-   
-
+    
+    
     output$txt_out <- renderPrint({
       edited_txt()
     }) 
