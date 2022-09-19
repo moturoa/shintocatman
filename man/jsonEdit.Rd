@@ -12,8 +12,7 @@ jsonEditModule(
   output,
   session,
   options = reactive(c("delete", "add")),
-  options_labels = c(delete = "Laatste verwijderen", add = "Toevoegen", save =
-    "Opslaan"),
+  options_labels = c(delete = "Laatste verwijderen", add = "Toevoegen", save = "Opslaan"),
   edit = reactive(c("key", "value")),
   widths = c(6, 6),
   value = reactive(NULL)
