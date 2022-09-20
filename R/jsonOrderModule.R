@@ -36,7 +36,9 @@ jsonOrderModule <- function(input, output, session,
   })
   
   labels <- reactive({
+    
     req(order_data())
+    req(length(order_data()) > 0)
     if(is.null(label_column())){
       as.character(seq(1, length(order_data())))
     } else {
