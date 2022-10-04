@@ -3,6 +3,7 @@
 #' JSON Multi-edit for a nested JSON list
 #' @description Use case: choice of a selectinput might depend on what is chosen in another
 #' selectinput. This nested dependency can be configured with jsonMultiEdit
+#' `r lifecycle::badge('experimental')`
 #' @rdname jsonMultiEdit
 #' @export
 jsonMultiEditUI <- function(id, 

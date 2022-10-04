@@ -86,6 +86,7 @@ test_valueEditModule <- function(){
 #' Module to edit a vector
 #' @description Like [jsonEditModule()] but without bugs. Also does not use JSON,
 #' but vector in / vector out.
+#' `r lifecycle::badge('experimental')`
 #' @export
 #' @rdname listEditModule
 listEditModuleUI <- function(id){

@@ -22,4 +22,5 @@ listEditModule(
 \description{
 Like \code{\link[=jsonEditModule]{jsonEditModule()}} but without bugs. Also does not use JSON,
 but vector in / vector out.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }

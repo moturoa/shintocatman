@@ -24,4 +24,5 @@ jsonMultiEdit(
 \description{
 Use case: choice of a selectinput might depend on what is chosen in another
 selectinput. This nested dependency can be configured with jsonMultiEdit
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
