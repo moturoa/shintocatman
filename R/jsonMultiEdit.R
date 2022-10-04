@@ -1,13 +1,4 @@
 
-
-library(shiny)
-library(softui)
-
-devtools::load_all()
-#library(shintocatman)
-
-
-
 jsonMultiEditUI <- function(id){
   
   ns <- NS(id)
@@ -18,13 +9,14 @@ jsonMultiEditUI <- function(id){
     tags$label("Keuzelijst"),
     
     uiOutput(ns("ui_listeditor"))
-  
+    
   )
   
 }
 
 
 jsonMultiEdit <- function(input, output, session, 
+                          edit_names = FALSE,
                           key = reactive("[]"),
                           value = reactive("[]")){
   
@@ -58,7 +50,7 @@ jsonMultiEdit <- function(input, output, session,
     val <- setNames(nms,val)
     updateSelectInput(session, "sel_key", choices = val)
   })
-
+  
   
   output$ui_listeditor <- renderUI({
     
@@ -85,7 +77,7 @@ jsonMultiEdit <- function(input, output, session,
     shinyjs::show(this_id)
     
   })
-
+  
   
   edit_arrays <- reactive({
     
@@ -96,7 +88,7 @@ jsonMultiEdit <- function(input, output, session,
       
       callModule(listEditModule, paste0("module_",key),
                  data = reactive(as.list(vals)),
-                 edit_name = TRUE, show_name = TRUE,
+                 edit_name = edit_names, show_name = edit_names,
                  widths = c(6,6),
                  options = reactive(c("add","delete")),
                  options_labels = c(delete = "Laatste verwijderen", 
@@ -106,7 +98,7 @@ jsonMultiEdit <- function(input, output, session,
     
   })
   
-
+  
   edit_output <- reactive({
     val <- lapply(edit_arrays(), function(x)x())
     names(val) <- names(keys_data())
@@ -114,7 +106,7 @@ jsonMultiEdit <- function(input, output, session,
   })
   
   
-return(edit_output)
+  return(edit_output)
 }
 
 
@@ -127,11 +119,11 @@ test_jsonMultiEdit <- function(){
   ui <- softui::simple_page(
     softui::box(width=4,
                 
-      jsonMultiEditUI("test")    
+                jsonMultiEditUI("test")    
     ),
     softui::box(width=4,
                 
-      verbatimTextOutput("txt_out")
+                verbatimTextOutput("txt_out")
     )
   )
   
@@ -157,7 +149,3 @@ test_jsonMultiEdit <- function(){
   shinyApp(ui, server)
   
 }
-
-
-
-

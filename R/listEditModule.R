@@ -226,6 +226,7 @@ return(val_out)
 
 test_listEditModule <- function(){
   
+  devtools::load_all()
   library(shiny)
   library(softui)
   
