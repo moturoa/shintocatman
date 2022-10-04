@@ -16,7 +16,8 @@ jsonMultiEditUI <- function(id){
     selectInput(ns("sel_key"), "Categorie", choices = NULL),
     
     tags$label("Keuzelijst"),
-    jsonEditModuleUI(ns("edit"))
+    
+    listEditModuleUI(ns("edit"))
   )
   
 }
@@ -48,19 +49,30 @@ jsonMultiEdit <- function(input, output, session,
   
   observeEvent(keys_data(), {
     val <- keys_data()
+    
+    nms <- names(val)
     val <- unname(unlist(val))
+    val <- setNames(nms,val)
     updateSelectInput(session, "sel_key", choices = val)
   })
   
   current_values <- reactive({
     req(input$sel_key)
-    jsonlite::toJSON(value_txt()[input$sel_key])
+    vals <- value_txt()[[input$sel_key]]
+    names(vals) <- as.character(seq_along(vals))
+    as.list(vals)
   })
   
   
-  callModule(jsonEditModule, "edit", 
-             edit = reactive(c("value")), 
-             value = current_values) 
+  callModule(listEditModule, "edit",
+             data = current_values,
+             edit_name = TRUE, show_name = TRUE,
+             widths = c(6,6),
+             options = reactive(c("add","delete")),
+             options_labels = c(delete = "Laatste verwijderen", 
+                                add = "Toevoegen"))
+  
+
   
 }
 
@@ -71,20 +83,29 @@ ui <- softui::simple_page(
   softui::box(width=4,
     
     jsonMultiEditUI("test")    
+  ),
+  softui::box(width=4,
+              
+        verbatimTextOutput("txt_out")
   )
 )
 
 keys <- jsonlite::toJSON(list("1" = "Aap", "2" = "Boom", "3" = "Hond"))
-vals <- jsonlite::toJSON(list("Aap" = "Chimpansee", "Boom" = "Eik", "Hond" = "Stabij"))
+vals <- jsonlite::toJSON(list("1" = c("Chimpansee", "Gorilla"), 
+                              "2" = c("Eik", "Beuk"), 
+                              "3" = "Stabij"))
 
 
 server <- function(input, output, session) {
   
-  callModule(jsonMultiEdit, "test", 
+  out <- callModule(jsonMultiEdit, "test", 
              key = reactive(keys),
              value = reactive(vals))
   
   
+  output$txt_out <- renderPrint({
+    out()
+  })
   
   
 }
