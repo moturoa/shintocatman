@@ -83,7 +83,11 @@ test_valueEditModule <- function(){
 
 
 
-
+#' Module to edit a vector
+#' @description Like [jsonEditModule()] but without bugs. Also does not use JSON,
+#' but vector in / vector out.
+#' @export
+#' @rdname listEditModule
 listEditModuleUI <- function(id){
   
   ns <- NS(id)
@@ -99,7 +103,8 @@ listEditModuleUI <- function(id){
 }
 
 
-
+#' @export
+#' @rdname listEditModule
 listEditModule <- function(input, output, session, data = reactive(list()),
                            edit_name = TRUE, show_name = TRUE,
                            widths = c(6,6),

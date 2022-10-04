@@ -1,12 +1,22 @@
 
-jsonMultiEditUI <- function(id){
+
+#' JSON Multi-edit for a nested JSON list
+#' @description Use case: choice of a selectinput might depend on what is chosen in another
+#' selectinput. This nested dependency can be configured with jsonMultiEdit
+#' @rdname jsonMultiEdit
+#' @export
+jsonMultiEditUI <- function(id, 
+                            ui_header = NULL,
+                            select_label = "Categorie",
+                            choices_label = "Keuzelijst"){
   
   ns <- NS(id)
   
   tags$div(
-    selectInput(ns("sel_key"), "Categorie", choices = NULL),
+    ui_header,
+    selectInput(ns("sel_key"), select_label, choices = NULL),
     
-    tags$label("Keuzelijst"),
+    tags$label(choices_label),
     
     uiOutput(ns("ui_listeditor"))
     
@@ -14,14 +24,12 @@ jsonMultiEditUI <- function(id){
   
 }
 
-
+#' @rdname jsonMultiEdit
+#' @export
 jsonMultiEdit <- function(input, output, session, 
                           edit_names = FALSE,
                           key = reactive("[]"),
                           value = reactive("[]")){
-  
-  
-  
   
   # TODO generic convert from JSON?
   value_txt <- reactive({
@@ -102,7 +110,7 @@ jsonMultiEdit <- function(input, output, session,
   edit_output <- reactive({
     val <- lapply(edit_arrays(), function(x)x())
     names(val) <- names(keys_data())
-    val
+    jsonlite::toJSON(val)
   })
   
   
@@ -119,11 +127,11 @@ test_jsonMultiEdit <- function(){
   ui <- softui::simple_page(
     softui::box(width=4,
                 
-                jsonMultiEditUI("test")    
+          jsonMultiEditUI("test", )    
     ),
     softui::box(width=4,
                 
-                verbatimTextOutput("txt_out")
+          verbatimTextOutput("txt_out")
     )
   )
   
