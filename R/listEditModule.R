@@ -116,7 +116,9 @@ listEditModule <- function(input, output, session, data = reactive(list()),
                            ){
   
   output$ui_options <- renderUI({
+
     
+    print("ui_options")
     tagList(
       if("add" %in% options()){
         softui::action_button(session$ns("btn_add_cat"), options_labels[["add"]], 

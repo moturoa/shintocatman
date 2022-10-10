@@ -8,12 +8,15 @@
 #' @export
 jsonMultiEditUI <- function(id, 
                             ui_header = NULL,
-                            choices_label = "Keuzelijst"){
+                            choices_label = "Keuzelijst",
+                            select_label = "Categorie"){
   
   ns <- NS(id)
   
   tags$div(
     ui_header,
+    #selectInput(ns("sel_key"), select_label, choices = NULL),
+    
     uiOutput(ns("ui_key_select")),
     
     tags$label(choices_label),
@@ -60,14 +63,20 @@ jsonMultiEdit <- function(input, output, session,
     out
   })
 
+  
+  #freezeReactiveValue(input, "sel_key")
+  
   output$ui_key_select <- renderUI({
 
+  #observe({
     val <- keys_data()
-
+    
     # switch names and values
     nms <- names(val)
     val <- unname(unlist(val))
     val <- setNames(nms,val)
+    
+    #updateSelectInput(session, "sel_key", choices = val)
     selectInput(session$ns("sel_key"), select_label, choices = val)
 
   })
@@ -75,10 +84,12 @@ jsonMultiEdit <- function(input, output, session,
 
   output$ui_listeditor <- renderUI({
 
+    
     keys <- keys_data()
 
     lapply(names(keys), function(key){
 
+      print(paste("KEY:",key))
       shinyjs::hidden(
         tags$div(id = session$ns(paste0("box_",key)),
           listEditModuleUI(session$ns(paste0("module_",key)))
@@ -95,6 +106,8 @@ jsonMultiEdit <- function(input, output, session,
     all_ids <- paste0("box_",names(keys_data()))
     lapply(all_ids, shinyjs::hide)
     this_id <- paste0("box_",key)
+    
+    print(paste("Showing:",this_id))
     shinyjs::show(this_id)
 
   })
@@ -102,9 +115,11 @@ jsonMultiEdit <- function(input, output, session,
 
   edit_arrays <- reactive({
 
+    print("edit_arrays")
+    
     lapply(names(keys_data()), function(key){
-
       vals <- value_txt()[[key]]
+      print(paste("edit_arrays:",key))
       names(vals) <- as.character(seq_along(vals))
 
       callModule(listEditModule, paste0("module_",key),
@@ -140,34 +155,75 @@ test_jsonMultiEdit <- function(){
   ui <- softui::simple_page(
     softui::box(width=4,
                 
-          jsonMultiEditUI("test")    
+          jsonMultiEditUI("test"),
+          
+          verbatimTextOutput("txt_out1")
+          
+          
     ),
     softui::box(width=4,
                 
+                softui::action_button("btn_modal", "Open in modal", status = "success"),
           verbatimTextOutput("txt_out")
     )
   )
   
   keys <- jsonlite::toJSON(list("1" = "Aap", "2" = "Boom", "3" = "Hond"))
-  vals <- jsonlite::toJSON(list("1" = c("Chimpansee", "Gorilla"), 
-                                "2" = c("Eik", "Beuk"), 
+  vals <- jsonlite::toJSON(list("1" = c("Chimpansee", "Gorilla"),
+                                "2" = c("Eik", "Beuk"),
                                 "3" = "Stabij"))
+  
+  # vals <- jsonlite::toJSON(list("1" = list(), 
+  #                               "2" = list(), 
+  #                               "3" = list()))
   
   
   server <- function(input, output, session) {
     
-    out <- callModule(jsonMultiEdit, "test", 
+      
+    observeEvent(input$btn_modal, {
+      
+      showModal(
+        softui::modal(id_confirm = "btn_confirm",
+          title = "Test",
+          jsonMultiEditUI(session$ns("nestedselect")),
+        )
+      )
+      
+    })
+
+    outmod_edit <- callModule(jsonMultiEdit, "nestedselect",
+                         key = reactive(keys),
+                         value = reactive(vals),
+                         json = TRUE)
+    
+    out <- callModule(jsonMultiEdit, "test",
                       key = reactive(keys),
                       value = reactive(vals),
                       json = TRUE)
+    #
+    # out <- callModule(jsonMultiEdit, "test",
+    #                   key = reactive(jsonlite::fromJSON(keys)),
+    #                   value = reactive(jsonlite::fromJSON(vals)),
+    #                   json = FALSE)
+   
+      
+    outmod <- reactiveVal()
+    observeEvent(input$btn_confirm, outmod(outmod_edit()))
     
     output$txt_out <- renderPrint({
-      out()
+      outmod_edit()
     })
     
-    
+    output$txt_out1 <- renderPrint({
+      out()
+    })
   }
   
   shinyApp(ui, server)
   
 }
+
+
+
+
