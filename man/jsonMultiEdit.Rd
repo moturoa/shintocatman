@@ -18,7 +18,8 @@ jsonMultiEdit(
   session,
   edit_names = FALSE,
   key = reactive("[]"),
-  value = reactive("[]")
+  value = reactive("[]"),
+  json = TRUE
 )
 }
 \description{
