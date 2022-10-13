@@ -5,7 +5,7 @@ Version: 0.3-2
 Author: Remko Duursma
 Depends: shiny,jsonlite,colourpicker,softui,sortable,pals,stringr
 Maintainer: Remko Duursma <remko@shintolabs.nl>
-Description: Zoeken, data ophalen, depseudonimiseren. Wrappers voor REST calls, etc.
+Description: Shiny modules and tools for category management
 License: CC0
 Encoding: UTF-8
 RoxygenNote: 7.2.1
