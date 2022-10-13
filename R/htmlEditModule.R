@@ -1,19 +1,30 @@
 
-
-#' HTML edit a field (TinyMCE)
+#' Shiny HTML input field 
+#' @description A rich text editor for Shiny applications with the TinyMCE editor.
+#' @details Set options(mce_api_key = "MYKEY"). Get your free API key at [www.tiny.cloud]
+#' @param inputId The Shiny input ID
+#' @param value Initial value
+#' @param height The height of the editor in pixels
+#' @param inline If TRUE, the editor is displayed in an inline block
+#' @param branding If TRUE, give some love to the TINY team
+#' @param menubar If TRUE, displays a more advanced menu
+#' @param toolbar The buttons to display above the editor.
 #' @export
-#' @importFrom softui action_button
-#' @importFrom uuid UUIDgenerate
-#' @rdname htmlEditModule
-htmlEditModuleUI <- function(id, label = "Edit HTML", ...){
+#' @rdname htmlInput
+htmlInput <- function(inputId, 
+                      value = NULL,
+                      height = 500,
+                      inline = FALSE,
+                      branding = FALSE,
+                      menubar = FALSE,
+                      toolbar = "styleselect | bold italic | numlist bullist | outdent indent | undo redo | insertdatetime",
+                      ...){
   
-  ns <- NS(id)
+  value <- shiny::restoreInput(id = inputId, default = value)
   
-  key <- get_mce_apikey()
-  
-  tagList(
+  shiny::tagList(
     shiny::singleton(
-      tags$script(src = paste0("https://cdn.tiny.cloud/1/",key,"/tinymce/5/tinymce.min.js"))
+      shiny::tags$script(src = get_mce_js_path())
     ),
     htmltools::htmlDependency(
       name = "tinymcebinding", version = "0.1",
@@ -21,9 +32,44 @@ htmlEditModuleUI <- function(id, label = "Edit HTML", ...){
       src = c(file = "tinymce"),
       script = "shiny-tinymce-bindings.js",
     ),
-    softui::action_button(ns("btn"), label, ...)
+    shiny::tags$script(glue::glue("tinyMCE.init({selector: '#{{inputId}}',",
+                     "inline: {{tolower(inline)}},",
+                     "branding: {{tolower(branding)}},",
+                     "contextmenu: '',",
+                     "plugins: ['lists','insertdatetime'],",
+                     "toolbar: '{{toolbar}}',",
+                     "menubar: {{tolower(menubar)}},",
+                     "height: {{height}}",
+                     "})", 
+                     .open = "{{", .close = "}}")),
+    shiny::tags$div(style = "width: 100%; height: 500px; padding: 20px; border: 1px solid black;",
+             id = inputId, 
+             class = "shinytinymce", 
+             HTML(value), ...
+    )
   )
   
+}
+
+
+#' @rdname htmlInput
+#' @export
+updatehtmlInput <- function(inputId, value, session = getDefaultReactiveDomain(), asis = FALSE){
+  
+  if(!asis){
+    inputId <- session$ns(inputId)
+  }
+  
+  data_list <- list(id = inputId, content = value)
+  session$sendCustomMessage(type = "shinyMCE.update", data_list)
+}
+
+
+
+#----- Utils
+get_mce_js_path <- function(){
+  key <- get_mce_apikey()
+  paste0("https://cdn.tiny.cloud/1/",key,"/tinymce/5/tinymce.min.js")
 }
 
 get_mce_apikey <- function(){
@@ -35,56 +81,83 @@ get_mce_apikey <- function(){
 }
 
 
-#' @rdname htmlEditModule
-#' @export
-htmlEditModule <- function(input, output, session,
-                           title = "", value = reactive("")){
+
+
+
+
+#=------- Test
+
+test_htmlEditModule <- function(){
   
+  library(softui)
   
-  last_mc_id <- reactiveVal()
+  #options(mce_api_key = "")
   
-  observeEvent(input$btn, {
+  ui_module <- function(id){
+    ns <- NS(id)
     
-    # Make new ID for editor
-    new_id <- uuid::UUIDgenerate()
-    last_mc_id(new_id)
-    new_id <- session$ns(new_id)
+    tags$div(
+      htmlInput(ns("value"), value = ""),
+      actionButton(ns("btn_update"),"Update")  
+    )
     
-    showModal(
-      softui::modal(
-        title = title,
-        close_button = TRUE,
-        id_confirm = "btn_confirm_toelichting_edits",
+  }
+  
+  server_module <- function(input, output, session){
+    
+    observeEvent(input$btn_update, {
+      updatehtmlInput("value", value = "HALLO HALLO HALLO")
+    })
+    
+    reactive(input$value)
+    
+  }
+  
+  
+  ui <- softui::simple_page(
+    
+    softui::fluid_row(
+      softui::box(width = 6,
+                  htmlInput("test", 
+                            value = "<b>Hallo!</b>, dit is een <h4>TEST</h4>",
+                            height = 300),
+                  verbatimTextOutput("txt_out")
+      ),
+      
+      softui::box(
+        width = 6,
+        uiOutput("ui_test2"),
         
-        tags$div(style = "width: 100%; height: 500px; padding: 20px; border: 1px solid black;",
-                 id = new_id, 
-                 class = "shinytinymce", 
-                 HTML(value())
-        ),
-        tags$script(glue("tinymce.init({selector: '#{{new_id}}',",
-                         "inline: false,",
-                         "branding: false,",
-                         "contextmenu: '',",
-                         "menubar: false,",
-                         "height: 500",
-                         "})", 
-                         .open = "{{", .close = "}}"))
+        verbatimTextOutput("txt_out2")
       )
     )
-  })
-  
-             
-  edits <- reactiveVal()
-  
-  observeEvent(input$btn_confirm_toelichting_edits, {
     
-    edits(input[[last_mc_id()]])
-  })
+    
+  )
+  
+  server <- function(input, output, session) {
+    
+    
+    output$txt_out <- renderPrint({
+      input$test
+    })
+    
+    output$ui_test2 <- renderUI({
+      ui_module("test")
+    })
+    
+    out2 <- callModule(server_module, "test")
+    
+    output$txt_out2 <- renderPrint({
+      out2()
+    })
+    
+    
+  }
+  
+  shinyApp(ui, server)
   
   
- return(edits) 
 }
-
-
 
 

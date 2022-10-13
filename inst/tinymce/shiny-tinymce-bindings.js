@@ -15,7 +15,7 @@ $.extend(shinymceInputBinding, {
     return tinyMCE.get($(el).attr('id')).getContent();
   },
   setValue: function(el, value) {
-    //tinyMCE.get($(el).attr('id')).change();
+    tinyMCE.get($(el).attr('id')).change(value);
   },
   receiveMessage: function(el, value){
     this.setValue(el, value);
@@ -24,28 +24,31 @@ $.extend(shinymceInputBinding, {
     tinyMCE.get($(el).attr('id')).on("init", function(e) {
              callback(true);
      });  
+    
     tinyMCE.get($(el).attr('id')).on("change", function(e) {
                  callback(true);
+         });
+     tinyMCE.get($(el).attr('id')).on("input", function(e) {
+                 callback(true);
          });     
-    //$(el).on('change.shinymceInputBinding', function(e){callback();});
+    
+    
+    
   },
   unsubscribe: function(el) {
     $(el).off(".shinymceInputBinding");
   }
-  //getRatePolicy: function(){
-  //  return {
-  //    policy: 'direct'
-  //  }
-  //}
+  
 });
 Shiny.inputBindings.register(shinymceInputBinding);
 
 
 Shiny.addCustomMessageHandler('shinyMCE.update', function(data) {
-  tinyMCE.get(data.id).setContent(data.content);
-  $('#'+data.id).trigger('change');
+  
+  let editor = tinyMCE.get(data.id); 
+  
+  editor.setContent(data.content);
+  editor.fire("input");
+  
 });
-
-
-//})();
 

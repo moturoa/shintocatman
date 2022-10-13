@@ -5,7 +5,12 @@
 \alias{jsonMultiEdit}
 \title{JSON Multi-edit for a nested JSON list}
 \usage{
-jsonMultiEditUI(id, ui_header = NULL, choices_label = "Keuzelijst")
+jsonMultiEditUI(
+  id,
+  ui_header = NULL,
+  choices_label = "Keuzelijst",
+  select_label = "Categorie"
+)
 
 jsonMultiEdit(
   input,
@@ -15,7 +20,6 @@ jsonMultiEdit(
   key = reactive("[]"),
   value = reactive("[]"),
   select_label = "Categorie",
-  trigger = reactive(NULL),
   json = TRUE
 )
 }
