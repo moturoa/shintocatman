@@ -23,25 +23,27 @@ htmlInput <- function(inputId,
   value <- shiny::restoreInput(id = inputId, default = value)
   
   shiny::tagList(
-    shiny::singleton(
-      shiny::tags$script(src = get_mce_js_path())
-    ),
+    # shiny::singleton(
+    #   shiny::tags$script(src = get_mce_js_path())
+    # ),
     htmltools::htmlDependency(
       name = "tinymcebinding", version = "0.1",
       package = "shintocatman",
       src = c(file = "tinymce"),
       script = "shiny-tinymce-bindings.js",
     ),
-    shiny::tags$script(glue::glue("tinyMCE.init({selector: '#{{inputId}}',",
-                     "inline: {{tolower(inline)}},",
-                     "branding: {{tolower(branding)}},",
-                     "contextmenu: '',",
-                     "plugins: ['lists','insertdatetime'],",
-                     "toolbar: '{{toolbar}}',",
-                     "menubar: {{tolower(menubar)}},",
-                     "height: {{height}}",
-                     "})", 
-                     .open = "{{", .close = "}}")),
+    shiny::singleton(
+      shiny::tags$script(glue::glue("tinyMCE.init({selector: '#{{inputId}}',",
+                                    "inline: {{tolower(inline)}},",
+                                    "branding: {{tolower(branding)}},",
+                                    "contextmenu: '',",
+                                    "plugins: ['lists','insertdatetime'],",
+                                    "toolbar: '{{toolbar}}',",
+                                    "menubar: {{tolower(menubar)}},",
+                                    "height: {{height}}",
+                                    "})", 
+                                    .open = "{{", .close = "}}"))
+    ),
     shiny::tags$div(style = "width: 100%; height: 500px; padding: 20px; border: 1px solid black;",
              id = inputId, 
              class = "shinytinymce", 
@@ -66,7 +68,20 @@ updatehtmlInput <- function(inputId, value, session = getDefaultReactiveDomain()
 
 
 
-#----- Utils
+
+#' htmlInput dependency
+#' @export
+useHtmlInput <- function(){
+  
+  tags$head(
+    tags$script(
+      src = get_mce_js_path()
+    )
+  )
+  
+}
+
+
 get_mce_js_path <- function(){
   key <- get_mce_apikey()
   paste0("https://cdn.tiny.cloud/1/",key,"/tinymce/5/tinymce.min.js")
@@ -78,7 +93,14 @@ get_mce_apikey <- function(){
     stop("Set options(mce_api_key = '<<TINYMCE API KEY>>')")
   }
   opt
-}
+}  
+
+
+
+
+
+#----- Utils
+
 
 
 
@@ -89,9 +111,10 @@ get_mce_apikey <- function(){
 
 test_htmlEditModule <- function(){
   
+  devtools::load_all()
   library(softui)
   
-  #options(mce_api_key = "")
+  options(mce_api_key = Sys.getenv("TINYMCE_API_KEY"))
   
   ui_module <- function(id){
     ns <- NS(id)
@@ -116,6 +139,8 @@ test_htmlEditModule <- function(){
   
   ui <- softui::simple_page(
     
+    shintocatman::useHtmlInput(),
+    
     softui::fluid_row(
       softui::box(width = 6,
                   htmlInput("test", 
@@ -127,6 +152,7 @@ test_htmlEditModule <- function(){
       softui::box(
         width = 6,
         uiOutput("ui_test2"),
+        actionButton("btn_rerender", "Render again"),
         
         verbatimTextOutput("txt_out2")
       )
@@ -143,6 +169,7 @@ test_htmlEditModule <- function(){
     })
     
     output$ui_test2 <- renderUI({
+      input$btn_rerender
       ui_module("test")
     })
     

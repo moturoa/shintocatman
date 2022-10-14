@@ -6,6 +6,6 @@
 \alias{shintocatman-package}
 \title{shintocatman: Category management}
 \description{
-Zoeken, data ophalen, depseudonimiseren. Wrappers voor REST calls, etc.
+Shiny modules and tools for category management
 }
 \keyword{internal}
