@@ -12,6 +12,7 @@
 #' @export
 #' @rdname htmlInput
 htmlInput <- function(inputId, 
+                      label = NULL,
                       value = NULL,
                       height = 500,
                       inline = FALSE,
@@ -32,8 +33,13 @@ htmlInput <- function(inputId,
       src = c(file = "tinymce"),
       script = "shiny-tinymce-bindings.js",
     ),
-    shiny::singleton(
-      shiny::tags$script(glue::glue("tinyMCE.init({selector: '#{{inputId}}',",
+    #shiny::singleton(
+      
+      shiny::tags$script(glue::glue("
+      
+                                    tinyMCE.remove('#{{inputId}}');
+                                    
+                                    tinyMCE.init({selector: '#{{inputId}}',",
                                     "inline: {{tolower(inline)}},",
                                     "branding: {{tolower(branding)}},",
                                     "contextmenu: '',",
@@ -42,13 +48,21 @@ htmlInput <- function(inputId,
                                     "menubar: {{tolower(menubar)}},",
                                     "height: {{height}}",
                                     "})", 
-                                    .open = "{{", .close = "}}"))
-    ),
-    shiny::tags$div(style = "width: 100%; height: 500px; padding: 20px; border: 1px solid black;",
-             id = inputId, 
-             class = "shinytinymce", 
-             HTML(value), ...
+                                    .open = "{{", .close = "}}")),
+    #),
+    
+    shiny::tags$div(
+      #class = "shiny-input-container",
+      shiny::tags$label(label, class = "control-label", 
+                        id = paste0(inputId,"-label"),
+                        `for` = inputId),
+      shiny::tags$div(style = "width: 100%; height: 500px; padding: 20px; border: 1px solid black;",
+                      id = inputId, 
+                      class = "shinytinymce", 
+                      HTML(value), ...
+      )  
     )
+    
   )
   
 }

@@ -7,6 +7,7 @@
 \usage{
 htmlInput(
   inputId,
+  label = NULL,
   value = NULL,
   height = 500,
   inline = FALSE,
