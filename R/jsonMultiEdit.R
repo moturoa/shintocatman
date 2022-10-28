@@ -36,7 +36,6 @@ jsonMultiEdit <- function(input, output, session,
                           select_label = "Categorie",
                           json = TRUE){
   
-
   # TODO generic convert from JSON?
   value_txt <- reactive({
     
@@ -63,12 +62,8 @@ jsonMultiEdit <- function(input, output, session,
     out
   })
 
-  
-  #freezeReactiveValue(input, "sel_key")
-  
   output$ui_key_select <- renderUI({
 
-  #observe({
     val <- keys_data()
     
     # switch names and values
@@ -76,7 +71,6 @@ jsonMultiEdit <- function(input, output, session,
     val <- unname(unlist(val))
     val <- setNames(nms,val)
     
-    #updateSelectInput(session, "sel_key", choices = val)
     selectInput(session$ns("sel_key"), select_label, choices = val)
 
   })
@@ -89,7 +83,6 @@ jsonMultiEdit <- function(input, output, session,
 
     lapply(names(keys), function(key){
 
-      print(paste("KEY:",key))
       shinyjs::hidden(
         tags$div(id = session$ns(paste0("box_",key)),
           listEditModuleUI(session$ns(paste0("module_",key)))
@@ -107,7 +100,6 @@ jsonMultiEdit <- function(input, output, session,
     lapply(all_ids, shinyjs::hide)
     this_id <- paste0("box_",key)
     
-    print(paste("Showing:",this_id))
     shinyjs::show(this_id)
 
   })
@@ -115,11 +107,8 @@ jsonMultiEdit <- function(input, output, session,
 
   edit_arrays <- reactive({
 
-    print("edit_arrays")
-    
     lapply(names(keys_data()), function(key){
       vals <- value_txt()[[key]]
-      print(paste("edit_arrays:",key))
       names(vals) <- as.character(seq_along(vals))
 
       callModule(listEditModule, paste0("module_",key),
@@ -142,6 +131,9 @@ jsonMultiEdit <- function(input, output, session,
   })
 
 
+  outputOptions(output, "ui_key_select", suspendWhenHidden = FALSE)  
+  outputOptions(output, "ui_listeditor", suspendWhenHidden = FALSE)
+  
   return(edit_output)
 }
 
@@ -153,19 +145,38 @@ test_jsonMultiEdit <- function(){
   devtools::load_all()
   
   ui <- softui::simple_page(
-    softui::box(width=4,
-                
-          jsonMultiEditUI("test"),
-          
-          verbatimTextOutput("txt_out1")
-          
-          
-    ),
-    softui::box(width=4,
-                
-                softui::action_button("btn_modal", "Open in modal", status = "success"),
-          verbatimTextOutput("txt_out")
-    )
+    
+    softui::fluid_row(
+      softui::box(width=4,
+                  
+            jsonMultiEditUI("test"),
+            
+            verbatimTextOutput("txt_out1")
+            
+            
+      ),
+      softui::box(width=4,
+                  
+            softui::modal_action_button("btn_modal", 
+                                        "modal_multi",
+                                        "Open in modal", status = "success"),
+                  
+            softui::ui_modal(id = "modal_multi",
+                          id_confirm = "btn_confirm",
+                          title = "Test",
+                          jsonMultiEditUI("nestedselect"),
+            ),
+                    
+            verbatimTextOutput("txt_out")
+      ),
+      softui::box(width = 4, title = "listEdit",
+        
+        listEditModuleUI("test_listedit"),
+        tags$hr(),
+        verbatimTextOutput("txt_listout")
+        
+      )
+  )
   )
   
   keys <- jsonlite::toJSON(list("1" = "Aap", "2" = "Boom", "3" = "Hond"))
@@ -173,25 +184,22 @@ test_jsonMultiEdit <- function(){
                                 "2" = c("Eik", "Beuk"),
                                 "3" = "Stabij"))
   
-  # vals <- jsonlite::toJSON(list("1" = list(), 
-  #                               "2" = list(), 
-  #                               "3" = list()))
-  
-  
   server <- function(input, output, session) {
     
-      
-    observeEvent(input$btn_modal, {
-      
-      showModal(
-        softui::modal(id_confirm = "btn_confirm",
-          title = "Test",
-          jsonMultiEditUI(session$ns("nestedselect")),
-        )
-      )
-      
+    # just list edit
+    list_out <- callModule(listEditModule, "test_listedit",
+               data = reactive(jsonlite::fromJSON(keys)),
+               edit_name = FALSE, 
+               show_name = TRUE,
+               widths = c(2,8),
+               options = reactive(c("add","delete")),
+               options_labels = c(delete = "Laatste verwijderen",
+                                  add = "Toevoegen"))
+    
+    output$txt_listout <- renderPrint({
+      list_out()
     })
-
+    
     outmod_edit <- callModule(jsonMultiEdit, "nestedselect",
                          key = reactive(keys),
                          value = reactive(vals),
@@ -201,13 +209,7 @@ test_jsonMultiEdit <- function(){
                       key = reactive(keys),
                       value = reactive(vals),
                       json = TRUE)
-    #
-    # out <- callModule(jsonMultiEdit, "test",
-    #                   key = reactive(jsonlite::fromJSON(keys)),
-    #                   value = reactive(jsonlite::fromJSON(vals)),
-    #                   json = FALSE)
-   
-      
+    
     outmod <- reactiveVal()
     observeEvent(input$btn_confirm, outmod(outmod_edit()))
     
