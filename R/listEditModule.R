@@ -157,11 +157,14 @@ listEditModule <- function(input, output, session, data = reactive(list()),
     input_ids(ids)
     
     for(i in seq_along(els)){
+    
+      nm <- names(els)[i]
+      if(nchar(nm) == 0)nm <- as.character(i)
       
       id_where <- paste0("#", session$ns("list_edit_placeholder"))
       id_module <- ids[i]
       ui <- valueEditModuleUI(id = session$ns(id_module),
-                              name = names(els)[i],
+                              name = nm,
                               value = els[[i]],
                               edit_name = edit_name, 
                               show_name = show_name,
@@ -181,10 +184,13 @@ listEditModule <- function(input, output, session, data = reactive(list()),
 
     id_where <- paste0("#", session$ns("list_edit_placeholder"))
     id_module <- uuid::UUIDgenerate()
+    
+    nth <- length(input_ids()) + 1
+    
     input_ids(c(input_ids(),id_module))
     
     ui <- valueEditModuleUI(id = session$ns(id_module),
-                            name = "",
+                            name = as.character(nth),
                             value = "",
                             edit_name = edit_name, 
                             show_name = show_name,
