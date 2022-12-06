@@ -140,6 +140,8 @@ jsonMultiEdit <- function(input, output, session,
 
 
 
+#----- Test module
+# (not exported!)
 test_jsonMultiEdit <- function(){
   
   devtools::load_all()

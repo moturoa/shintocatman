@@ -1,5 +1,9 @@
 
 
+#--- Shiny module: edit a list of values (and their names) with nice UI
+
+
+#--- Utils
 valueEditModuleUI <- function(id, name = "1", 
                               edit_name = TRUE, 
                               show_name = TRUE,
@@ -81,7 +85,7 @@ test_valueEditModule <- function(){
 
 
 
-
+#----- UI function
 
 #' Module to edit a vector
 #' @description Like [jsonEditModule()] but without bugs. Also does not use JSON,
@@ -104,6 +108,8 @@ listEditModuleUI <- function(id){
 }
 
 
+#---- Server function
+
 #' @export
 #' @rdname listEditModule
 listEditModule <- function(input, output, session, data = reactive(list()),
@@ -117,8 +123,6 @@ listEditModule <- function(input, output, session, data = reactive(list()),
   
   output$ui_options <- renderUI({
 
-    
-    print("ui_options")
     tagList(
       if("add" %in% options()){
         softui::action_button(session$ns("btn_add_cat"), options_labels[["add"]], 
@@ -155,7 +159,7 @@ listEditModule <- function(input, output, session, data = reactive(list()),
     
     ids <- uuid::UUIDgenerate(n = length(els))
     input_ids(ids)
-    
+
     for(i in seq_along(els)){
     
       nm <- names(els)[i]
@@ -238,6 +242,9 @@ return(val_out)
 
 
 
+
+#------ Test module
+# (not exported!)
 test_listEditModule <- function(){
   
   devtools::load_all()

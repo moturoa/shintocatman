@@ -1,7 +1,7 @@
 Package: shintocatman
 Type: Package
 Title: Category management
-Version: 0.3-3
+Version: 0.4
 Author: Remko Duursma
 Depends: shiny,jsonlite,colourpicker,softui,sortable,pals,stringr
 Maintainer: Remko Duursma <remko@shintolabs.nl>
