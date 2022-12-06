@@ -190,7 +190,7 @@ listEditModule <- function(input, output, session, data = reactive(list()),
     input_ids(c(input_ids(),id_module))
     
     ui <- valueEditModuleUI(id = session$ns(id_module),
-                            name = as.character(nth),
+                            name = if(edit_name) "" else as.character(nth),
                             value = "",
                             edit_name = edit_name, 
                             show_name = show_name,
