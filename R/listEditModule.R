@@ -183,7 +183,7 @@ listEditModule <- function(input, output, session, data = reactive(list()),
   })
   
   # Add a value
-  observeEvent(input$btn_add_cat, {
+  observeEvent(input$btn_add_cat, ignoreInit = TRUE, ignoreNULL = TRUE, {
     
 
     id_where <- paste0("#", session$ns("list_edit_placeholder"))
@@ -200,7 +200,7 @@ listEditModule <- function(input, output, session, data = reactive(list()),
                             show_name = show_name,
                             widths = widths)
     insertUI(id_where, "beforeEnd", ui = ui)
-    
+
     out[[id_module]] <- callModule(valueEditModule, id_module, 
                                    keep_name = edit_name | show_name)
   })
@@ -253,22 +253,48 @@ test_listEditModule <- function(){
   
   ui <- softui::simple_page(
     softui::box(width = 4,
-      listEditModuleUI("test")
+      listEditModuleUI("test"),
+      
+      
+      softui::modal_action_button(modalId = "listmodal", label = "Open modal", status = "success"),
+      softui::ui_modal(id = "listmodal",
+                       listEditModuleUI("mod"),
+                       id_confirm = "btn_confirm_save"
+                       )
     ),
     softui::box(width = 4, 
-      verbatimTextOutput("txt_out")            
+      verbatimTextOutput("txt_out"),
+      tags$hr(),
+      verbatimTextOutput("txt_out2")
     )
   )
   
   server <- function(input, output, session) {
+    
+    playdata <- reactiveVal(list(a = 1, b = 2))
+    
     testit <- callModule(listEditModule, "test", 
-               data = reactive(list(a = 1, b = 2)),
+               data = playdata,
                edit_name = TRUE, show_name = TRUE
     )
     
     output$txt_out <- renderPrint({
       testit()
     })
+    
+    
+    test2 <- callModule(listEditModule, "mod", 
+                         data = playdata,
+                         edit_name = TRUE, show_name = TRUE
+    )
+    output$txt_out2 <- renderPrint({
+      test2()
+    })
+    
+    observeEvent(input$btn_confirm_save, {
+      playdata(as.list(test2()))
+    })
+    
   }
   
   shinyApp(ui, server)

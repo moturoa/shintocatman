@@ -129,7 +129,7 @@ jsonMultiEdit <- function(input, output, session,
 
   })
 
-
+  
   edit_output <- reactive({
     val <- lapply(edit_arrays(), function(x)x())
     names(val) <- names(keys_data())
@@ -186,19 +186,25 @@ test_jsonMultiEdit <- function(){
       )
   )
   )
-  
-  keys <- jsonlite::toJSON(list("1" = "Aap", "2" = "Boom", "3" = "Hond"))
-  vals <- jsonlite::toJSON(list("1" = c("Chimpansee", "Gorilla"),
-                                "2" = c("Eik", "Beuk"),
-                                "3" = "Stabij"))
-  #vals <- jsonlite::toJSON(list())
+  # 
+  # keys <- jsonlite::toJSON(list("1" = "Aap", "2" = "Boom", "3" = "Hond"))
+  # vals <- jsonlite::toJSON(list("1" = c("Chimpansee", "Gorilla"),
+  #                               "2" = c("Eik", "Beuk"),
+  #                               "3" = "Stabij"))
+  # #vals <- jsonlite::toJSON(list())
   
   
   server <- function(input, output, session) {
     
+    
+    key_data <- reactiveVal(list("1" = "Aap", "2" = "Boom", "3" = "Hond"))
+    val_data <- reactiveVal(list("1" = c("Chimpansee", "Gorilla"),
+                                 "2" = c("Eik", "Beuk"),
+                                 "3" = "Stabij"))
+    
     # just list edit
     list_out <- callModule(listEditModule, "test_listedit",
-               data = reactive(jsonlite::fromJSON(keys)),
+               data = key_data,
                edit_name = FALSE, 
                show_name = TRUE,
                widths = c(2,8),
@@ -211,21 +217,26 @@ test_jsonMultiEdit <- function(){
     })
     
     outmod_edit <- callModule(jsonMultiEdit, "nestedselect",
-                         key = reactive(keys),
-                         value = reactive(vals),
-                         json = TRUE)
+                         key = key_data,
+                         value = val_data,
+                         json = FALSE)
+    
+    
+    observeEvent(outmod_edit(), {
+      invisible()
+    })
+    
+    
     
     out <- callModule(jsonMultiEdit, "test",
-                      key = reactive(keys),
-                      value = reactive(vals),
-                      json = TRUE)
+                      key = key_data,
+                      value = val_data,
+                      json = FALSE)
     
-    outmod <- reactiveVal()
-    observeEvent(input$btn_confirm, outmod(outmod_edit()))
-    
-    output$txt_out <- renderPrint({
-      outmod_edit()
+    observeEvent(input$btn_confirm, {
+      val_data(jsonlite::fromJSON(outmod_edit()))
     })
+    
     
     output$txt_out1 <- renderPrint({
       out()
