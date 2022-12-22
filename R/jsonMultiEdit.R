@@ -75,14 +75,13 @@ jsonMultiEdit <- function(input, output, session,
 
   })
 
-
+  
   output$ui_listeditor <- renderUI({
 
-    
     keys <- keys_data()
 
     lapply(names(keys), function(key){
-
+      
       shinyjs::hidden(
         tags$div(id = session$ns(paste0("box_",key)),
           listEditModuleUI(session$ns(paste0("module_",key)))
@@ -97,6 +96,7 @@ jsonMultiEdit <- function(input, output, session,
 
     key <- input$sel_key
     all_ids <- paste0("box_",names(keys_data()))
+    
     lapply(all_ids, shinyjs::hide)
     this_id <- paste0("box_",key)
     
@@ -108,8 +108,14 @@ jsonMultiEdit <- function(input, output, session,
   edit_arrays <- reactive({
 
     lapply(names(keys_data()), function(key){
+      
       vals <- value_txt()[[key]]
-      names(vals) <- as.character(seq_along(vals))
+      if(length(vals) > 0){
+        names(vals) <- as.character(seq_along(vals))  
+      } else {
+        vals <- list()
+      }
+      
 
       callModule(listEditModule, paste0("module_",key),
                  data = reactive(as.list(vals)),
@@ -131,7 +137,7 @@ jsonMultiEdit <- function(input, output, session,
   })
 
 
-  outputOptions(output, "ui_key_select", suspendWhenHidden = FALSE)  
+  outputOptions(output, "ui_key_select", suspendWhenHidden = FALSE)
   outputOptions(output, "ui_listeditor", suspendWhenHidden = FALSE)
   
   return(edit_output)
@@ -185,6 +191,8 @@ test_jsonMultiEdit <- function(){
   vals <- jsonlite::toJSON(list("1" = c("Chimpansee", "Gorilla"),
                                 "2" = c("Eik", "Beuk"),
                                 "3" = "Stabij"))
+  #vals <- jsonlite::toJSON(list())
+  
   
   server <- function(input, output, session) {
     

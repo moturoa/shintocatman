@@ -20,3 +20,8 @@ from_json <- function(x, ...){
 to_json <- function(x, ...){
   jsonlite::toJSON(x, auto_unbox = TRUE, ...)
 }
+
+
+random_id <- function(n = 1){
+  replicate(n, paste(sample(letters,8,replace=TRUE),collapse=""))
+}
