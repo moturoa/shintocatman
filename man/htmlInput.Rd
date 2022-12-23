@@ -15,6 +15,8 @@ htmlInput(
   menubar = FALSE,
   toolbar =
     "styleselect | bold italic | numlist bullist | outdent indent | undo redo | insertdatetime",
+  plugins = c("lists", "insertdatetime", "autoresize"),
+  contextmenu = "",
   ...
 )
 
@@ -38,7 +40,7 @@ updatehtmlInput(
 
 \item{menubar}{If TRUE, displays a more advanced menu}
 
-\item{toolbar}{The buttons to display above the editor.}
+\item{toolbar}{The buttons to display above the editor, in string format.}
 }
 \description{
 A rich text editor for Shiny applications with the TinyMCE editor.

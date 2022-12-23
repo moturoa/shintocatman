@@ -8,7 +8,7 @@
 #' @param inline If TRUE, the editor is displayed in an inline block
 #' @param branding If TRUE, give some love to the TINY team
 #' @param menubar If TRUE, displays a more advanced menu
-#' @param toolbar The buttons to display above the editor.
+#' @param toolbar The buttons to display above the editor, in string format. 
 #' @export
 #' @rdname htmlInput
 htmlInput <- function(inputId, 
@@ -19,44 +19,55 @@ htmlInput <- function(inputId,
                       branding = FALSE,
                       menubar = FALSE,
                       toolbar = "styleselect | bold italic | numlist bullist | outdent indent | undo redo | insertdatetime",
+                      plugins = c("lists","insertdatetime","autoresize"),
+                      contextmenu = "",
                       ...){
   
   value <- shiny::restoreInput(id = inputId, default = value)
   
+  if(endsWith(as.character(height),"px")){
+    height <- as.integer(gsub("px","",height))
+  }
+  
+  plugin_string <- ifelse(length(plugins > 0),
+                          paste0(
+                            "plugins: [",
+                            paste0("'",plugins,"'",collapse=','),
+                            "],"
+                          ), "")
+  
+  
   shiny::tagList(
-    # shiny::singleton(
-    #   shiny::tags$script(src = get_mce_js_path())
-    # ),
+    
     htmltools::htmlDependency(
       name = "tinymcebinding", version = "0.1",
       package = "shintocatman",
       src = c(file = "tinymce"),
       script = "shiny-tinymce-bindings.js",
     ),
-    #shiny::singleton(
-      
-      shiny::tags$script(glue::glue("
-      
-                                    tinyMCE.remove('#{{inputId}}');
-                                    
-                                    tinyMCE.init({selector: '#{{inputId}}',",
-                                    "inline: {{tolower(inline)}},",
-                                    "branding: {{tolower(branding)}},",
-                                    "contextmenu: '',",
-                                    "plugins: ['lists','insertdatetime'],",
-                                    "toolbar: '{{toolbar}}',",
-                                    "menubar: {{tolower(menubar)}},",
-                                    "height: {{height}}",
-                                    "})", 
-                                    .open = "{{", .close = "}}")),
-    #),
+    
+    shiny::tags$script(glue::glue("
+                                  tinyMCE.remove('#{{inputId}}');
+                                  
+                                  tinyMCE.init({selector: '#{{inputId}}',",
+                                  "inline: {{tolower(inline)}},",
+                                  "branding: {{tolower(branding)}},",
+                                  "contextmenu: '{{contextmenu}}',",
+                                   plugin_string,
+                                  "toolbar: '{{toolbar}}',",
+                                  "menubar: {{tolower(menubar)}},",
+                                  "height: {{height}}",
+                                  #"width: '100%',",
+                                  "})", 
+                                  .open = "{{", .close = "}}")),
     
     shiny::tags$div(
-      #class = "shiny-input-container",
+      # messes with the CSS: we don't seem to need it anyway
+      #class = "shiny-input-container", 
       shiny::tags$label(label, class = "control-label", 
                         id = paste0(inputId,"-label"),
                         `for` = inputId),
-      shiny::tags$div(style = "width: 100%; height: 500px; padding: 20px; border: 1px solid black;",
+      shiny::tags$div(style = "width: 100%; padding: 20px; border: 1px solid black;",
                       id = inputId, 
                       class = "shinytinymce", 
                       HTML(value), ...
