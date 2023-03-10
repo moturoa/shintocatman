@@ -23,6 +23,8 @@ htmlInput <- function(inputId,
                       contextmenu = "",
                       ...){
   
+  if(is.na(value))value <- ""
+  
   value <- shiny::restoreInput(id = inputId, default = value)
   
   if(endsWith(as.character(height),"px")){
