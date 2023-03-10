@@ -89,6 +89,8 @@ updatehtmlInput <- function(inputId, value, session = getDefaultReactiveDomain()
     inputId <- session$ns(inputId)
   }
   
+  if(is.na(value))value <- ""
+  
   data_list <- list(id = inputId, content = value)
   session$sendCustomMessage(type = "shinyMCE.update", data_list)
 }
