@@ -163,7 +163,7 @@ listEditModule <- function(input, output, session, data = reactive(list()),
     for(i in seq_along(els)){
     
       nm <- names(els)[i]
-      if(nchar(nm) == 0)nm <- as.character(i)
+      if(is.null(nm) || nchar(nm) == 0)nm <- as.character(i)
       
       id_where <- paste0("#", session$ns("list_edit_placeholder"))
       id_module <- ids[i]
