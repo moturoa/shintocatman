@@ -179,7 +179,9 @@ colorVectorPickModule <- function(input, output, session,
 
     cols <- c()
     ids <- color_ids()
-    for(i in 1:length(ids)){
+    req(ids)
+    
+    for(i in seq_along(ids)){
       cols[i] <- input[[ids[i]]]
     }
     cols
