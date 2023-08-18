@@ -107,7 +107,7 @@ colorVectorPickModule <- function(input, output, session,
         ),
         shiny::column(5, 
                softui::action_button(session$ns("btn_make_gradient"),
-                                     "Maak gradient", status = "secondary",
+                                     "Maak gradiënt", status = "secondary",
                                      icon = softui::bsicon("brush-fill"))
         )
       ),
@@ -165,7 +165,15 @@ colorVectorPickModule <- function(input, output, session,
     
     # ONLY from pals package
     palfun <- utils::getFromNamespace(input$sel_palette, "pals")
-    cols <- palfun(n)
+    
+    suppressWarnings({
+      cols <- tryCatch(palfun(n), 
+                       # e.g. brewer.oranges needs n>2.
+                       # fails with n = 2. In that case, take one more color and try again.
+                       error = function(e){
+                         palfun(n+1)[1:n]
+                       })
+    })
     
     for(i in 1:n){
       colourpicker::updateColourInput(session,
