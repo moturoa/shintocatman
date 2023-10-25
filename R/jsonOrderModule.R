@@ -47,7 +47,7 @@ jsonOrderModule <- function(input, output, session,
   })
 
   order_int <- reactive({
-    match(input$value, names(labels()))
+    order_data()[match(input$value, names(labels()))]
   })
   
   out <- reactive({
@@ -62,14 +62,15 @@ return(out)
 
 
 test_jsonOrderModule <- function(){
-  library(shiny)
+  devtools::load_all()
+  
   
   ui <- softui::simple_page(style = "margin: auto; width: 600px;",
     jsonOrderModuleUI("test"),
     tags$hr(),
     verbatimTextOutput("out"),
-    tags$hr(),
-    softui::action_button("btn_go_modal", "in modal", status = "success")
+    # tags$hr(),
+    # softui::action_button("btn_go_modal", "in modal", status = "success")
     
   )
   
@@ -77,10 +78,10 @@ test_jsonOrderModule <- function(){
     
     out <- callModule(jsonOrderModule, "test",
                
-               data = reactive({
+               data = reactive({  
                  tibble(
-                  labels = to_json(setNames(list("aap","banaan","tak","boom"),as.character(1:4))),
-                  order = to_json(c(4,1,2,3))
+                  labels = to_json(setNames(list("een","twee","drie","vier","vijf","zes","zeven"),as.character(1:7))),
+                  order = to_json(c(7:1))
                 )
                }),
                order_column = reactive("order"),
@@ -91,20 +92,20 @@ test_jsonOrderModule <- function(){
       out()
     })
     
-    softui::modalize(trigger_open = reactive(input$btn_go_modal),
-                     ui_module = jsonOrderModuleUI,
-                     server_module = jsonOrderModule,
-                     server_pars = list(
-                     data = reactive({
-                       tibble(
-                        labels = to_json(setNames(list("aap","banaan","tak","boom"),as.character(1:4))),
-                        order = to_json(c(4,1,2,3))
-                       )
-                     }),
-                     order_column = reactive("order"),
-                     label_column = reactive("labels")
-       )
-    )    
+    # softui::modalize(trigger_open = reactive(input$btn_go_modal),
+    #                  ui_module = jsonOrderModuleUI,
+    #                  server_module = jsonOrderModule,
+    #                  server_pars = list(
+    #                  data = reactive({
+    #                    tibble(
+    #                     labels = to_json(setNames(list("aap","banaan","tak","boom"),as.character(1:4))),
+    #                     order = to_json(c(4,1,2,3))
+    #                    )
+    #                  }),
+    #                  order_column = reactive("order"),
+    #                  label_column = reactive("labels")
+    #    )
+    # )    
     
     
   }
