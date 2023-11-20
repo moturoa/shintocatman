@@ -1,6 +1,6 @@
 
 
-#' HTML edit a field (TinyMCE)
+#' HTML edit a field (TinyMCE). OBSOLETE - use `htmlInput` instead
 #' @export
 #' @importFrom softui action_button
 #' @importFrom uuid UUIDgenerate

@@ -69,9 +69,6 @@ test_jsonOrderModule <- function(){
     jsonOrderModuleUI("test"),
     tags$hr(),
     verbatimTextOutput("out"),
-    # tags$hr(),
-    # softui::action_button("btn_go_modal", "in modal", status = "success")
-    
   )
   
   server <- function(input, output, session) {
@@ -92,20 +89,6 @@ test_jsonOrderModule <- function(){
       out()
     })
     
-    # softui::modalize(trigger_open = reactive(input$btn_go_modal),
-    #                  ui_module = jsonOrderModuleUI,
-    #                  server_module = jsonOrderModule,
-    #                  server_pars = list(
-    #                  data = reactive({
-    #                    tibble(
-    #                     labels = to_json(setNames(list("aap","banaan","tak","boom"),as.character(1:4))),
-    #                     order = to_json(c(4,1,2,3))
-    #                    )
-    #                  }),
-    #                  order_column = reactive("order"),
-    #                  label_column = reactive("labels")
-    #    )
-    # )    
     
     
   }
